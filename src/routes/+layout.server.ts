@@ -1,5 +1,23 @@
-export const load = async (event: any) => {
-    return {
-        session: await event.locals.getSession(),
+import { db } from "$lib/server/db";
+import { invites, users } from "$lib/server/db/schema";
+import { eq } from "drizzle-orm"; // ✅ Fix: import eq
+
+export const load = async ({ cookies }) => {
+    const token = cookies.get("invite_token");
+    if (token) {
+      const invite = await db.query.invites.findFirst({
+        where: (i, { eq }) => eq(i.token, token)
+      });
+      console.log("Invite:", invite);
+
+      if (invite) {
+        await db.update(users)
+          .set({ teamId: invite.teamId })
+          .where(eq(users.email, invite.email));
+      }
+
+      cookies.delete("invite_token", { path: "/" });
     }
-}
+
+  return;
+};
