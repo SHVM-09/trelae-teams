@@ -51,6 +51,8 @@
 		"dotenv": "^17.0.1",
 		"drizzle-orm": "^0.44.2",
 		"resend": "^4.6.0",
-		"tailwindcss": "^4.1.11"
+		"svelte-sonner": "^1.0.5",
+		"tailwindcss": "^4.1.11",
+		"trelae-files": "^0.1.1"
 	}
 }

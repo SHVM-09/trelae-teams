@@ -32,9 +32,15 @@ importers:
       resend:
         specifier: ^4.6.0
         version: 4.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      svelte-sonner:
+        specifier: ^1.0.5
+        version: 1.0.5(svelte@5.35.2)
       tailwindcss:
         specifier: ^4.1.11
         version: 4.1.11
+      trelae-files:
+        specifier: ^0.1.1
+        version: 0.1.1
     devDependencies:
       '@internationalized/date':
         specifier: ^3.8.1
@@ -1158,6 +1164,11 @@ packages:
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
+  runed@0.28.0:
+    resolution: {integrity: sha512-k2xx7RuO9hWcdd9f+8JoBeqWtYrm5CALfgpkg2YDB80ds/QE4w0qqu34A7fqiAwiBBSBQOid7TLxwxVC27ymWQ==}
+    peerDependencies:
+      svelte: ^5.7.0
+
   runed@0.29.2:
     resolution: {integrity: sha512-0cq6cA6sYGZwl/FvVqjx9YN+1xEBu9sDDyuWdDW1yWX7JF2wmvmVKfH+hVCZs+csW+P3ARH92MjI3H9QTagOQA==}
     peerDependencies:
@@ -1202,6 +1213,11 @@ packages:
       svelte: ^4.0.0 || ^5.0.0-next.0
       typescript: '>=5.0.0'
 
+  svelte-sonner@1.0.5:
+    resolution: {integrity: sha512-9dpGPFqKb/QWudYqGnEz93vuY+NgCEvyNvxoCLMVGw6sDN/3oVeKV1xiEirW2E1N3vJEyj5imSBNOGltQHA7mg==}
+    peerDependencies:
+      svelte: ^5.0.0
+
   svelte-toolbelt@0.9.3:
     resolution: {integrity: sha512-HCSWxCtVmv+c6g1ACb8LTwHVbDqLKJvHpo6J8TaqwUme2hj9ATJCpjCPNISR1OCq2Q4U1KT41if9ON0isINQZw==}
     engines: {node: '>=18', pnpm: '>=8.7.0'}
@@ -1245,6 +1261,9 @@ packages:
   totalist@3.0.1:
     resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}
     engines: {node: '>=6'}
+
+  trelae-files@0.1.1:
+    resolution: {integrity: sha512-Kn/iqbQea7o0ofleOLhZonmrpla7MWT+DJBfS3OBzSzNhlSPNl9QAO5K79b564L7FNX5A2rDBvbGdQr4oaBQ2w==}
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
@@ -2124,6 +2143,11 @@ snapshots:
       '@rollup/rollup-win32-x64-msvc': 4.44.2
       fsevents: 2.3.3
 
+  runed@0.28.0(svelte@5.35.2):
+    dependencies:
+      esm-env: 1.2.2
+      svelte: 5.35.2
+
   runed@0.29.2(svelte@5.35.2):
     dependencies:
       esm-env: 1.2.2
@@ -2171,6 +2195,11 @@ snapshots:
       typescript: 5.8.3
     transitivePeerDependencies:
       - picomatch
+
+  svelte-sonner@1.0.5(svelte@5.35.2):
+    dependencies:
+      runed: 0.28.0(svelte@5.35.2)
+      svelte: 5.35.2
 
   svelte-toolbelt@0.9.3(svelte@5.35.2):
     dependencies:
@@ -2226,6 +2255,8 @@ snapshots:
       picomatch: 4.0.2
 
   totalist@3.0.1: {}
+
+  trelae-files@0.1.1: {}
 
   tslib@2.8.1: {}
 

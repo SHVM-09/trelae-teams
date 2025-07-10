@@ -28,3 +28,15 @@ export const invites = pgTable("invites", {
   token: text("token").notNull().unique(),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+// Files table
+export const files = pgTable("files", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull(),
+  name: text("name").notNull(),
+  location: text("location").notNull(),
+  namespaceId: uuid("namespace_id").notNull(),
+  status: text("status").default("pending"), // pending / uploaded / failed
+  visibility: text("visibility").notNull().default("private"), // private | team | public
+  createdAt: timestamp("created_at").defaultNow(),
+});
