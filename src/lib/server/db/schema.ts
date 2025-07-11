@@ -1,4 +1,4 @@
-import { uuid, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { uuid, pgTable, text, timestamp, integer } from "drizzle-orm/pg-core";
 
 // Users table
 export const users = pgTable("users", {
@@ -36,7 +36,9 @@ export const files = pgTable("files", {
   name: text("name").notNull(),
   location: text("location").notNull(),
   namespaceId: uuid("namespace_id").notNull(),
-  status: text("status").default("pending"), // pending / uploaded / failed
+  type: text("type").notNull().default("file"),  // NEW: file | folder
+  size: integer("size").notNull().default(0),             // NEW: file size in bytes
+  status: text("status").default("pending"),     // pending | uploaded | failed
   visibility: text("visibility").notNull().default("private"), // private | team | public
   createdAt: timestamp("created_at").defaultNow(),
 });

@@ -96,7 +96,9 @@
       body: JSON.stringify({
         filename: selectedFile.name,
         visibility: 'private',
-        location: ''
+        location: '',
+        type: 'file',
+        size: selectedFile.size
       })
     });
 
@@ -192,7 +194,7 @@
 
     {#if user?.teamId}
       <!-- Team Files -->
-      <a href="/teams/files" class="flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 hover:shadow-md transition group">
+      <a href="/dashboard/team-files" class="flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 hover:shadow-md transition group">
         <div class="flex items-center justify-between mb-4">
           <ShieldCheck class="w-6 h-6 text-purple-600 group-hover:scale-110 transition" />
           <span class="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full">Shared</span>

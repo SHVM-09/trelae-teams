@@ -6,6 +6,7 @@
 
 	let {
 		currentLocation = '',
+		visibility = 'private',
 		onReflectUpload = () => {}
 	} = $props();
 
@@ -26,7 +27,9 @@
 				body: JSON.stringify({
 					filename: selectedFile.name,
 					location: currentLocation,
-					visibility: 'private'
+					visibility,
+					type: 'file',
+					size: selectedFile.size 
 				})
 			});
 
@@ -58,6 +61,8 @@
 				name,
 				location: currentLocation,
 				status: 'uploaded',
+				type: 'file',
+				size: selectedFile.size,
 				createdAt: new Date().toISOString()
 			});
 
@@ -95,9 +100,10 @@
 
 			<label
 				for="file"
-				class="flex cursor-pointer min-h-20 items-center gap-2 rounded-lg border border-dashed border-zinc-300 bg-zinc-50 p-4 text-sm text-zinc-600 hover:border-zinc-400 hover:bg-zinc-100"
+				class="flex flex-col cursor-pointer min-h-32 items-center justify-center gap-2 rounded-lg border border-dashed border-zinc-300 bg-zinc-50 p-4 text-sm text-zinc-600 hover:border-zinc-400 hover:bg-zinc-100"
 			>
-				<Upload class="size-4" /> {selectedFile?.name || 'Click to select a file'}
+				<Upload class="size-4" />
+				<p>{selectedFile?.name || 'click to select a file'}</p>
 				<input
 					id="file"
 					type="file"
@@ -110,7 +116,7 @@
 			</label>
 
 			<Button
-				class="mt-4"
+				class="mt-4 w-fit"
 				disabled={!selectedFile || uploading}
 				onclick={startUpload}
 			>

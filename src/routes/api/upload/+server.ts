@@ -4,16 +4,26 @@ import { db } from "$lib/server/db";
 import { files } from "$lib/server/db/schema";
 import { eq, and } from "drizzle-orm";
 import { trelae } from "$lib/trelae";
-import { randomUUID } from "crypto";
 
 export const POST = async ({ request, locals }) => {
 	const session = await locals.auth();
 	if (!session?.user) return new Response("Unauthorized", { status: 401 });
 
-	const { filename, visibility, location } = await request.json();
+	const { filename, visibility, location, type, size } = await request.json();
 	if (!filename) return new Response("Filename required", { status: 400 });
 
-	const namespace = trelae.namespace(process.env.TRELAE_NAMESPACE_ID!);
+	// 🔑 Pick namespace dynamically based on visibility
+	let namespaceId: string;
+
+	if (visibility === 'team') {
+		namespaceId = process.env.TRELAE_TEAM_NAMESPACE_ID!;
+	} else if (visibility === 'public') {
+		namespaceId = process.env.TRELAE_PUBLIC_NAMESPACE_ID!;
+	} else {
+		namespaceId = process.env.TRELAE_NAMESPACE_ID!;
+	}
+
+	const namespace = trelae.namespace(namespaceId);
 
 	// Check for duplicate name for user
 	const existing = await db
@@ -46,7 +56,7 @@ export const POST = async ({ request, locals }) => {
 		// Remote check: fetch all IDs at that location
 		const { files: remoteFiles } = await namespace.getFiles({
 			location,
-			limit: 50 // or adjust if you expect more
+			limit: 50 // adjust if needed
 		});
 
 		// Check each remote file’s metadata.name
@@ -59,10 +69,9 @@ export const POST = async ({ request, locals }) => {
 			}
 		}
 
-		// If no conflicts anywhere → safe to break
 		if (!localExists.length && !remoteConflict) break;
 
-		// Otherwise bump version
+		// Bump version
 		const parts = filename.split(".");
 		if (parts.length > 1) {
 			const ext = parts.pop();
@@ -83,7 +92,9 @@ export const POST = async ({ request, locals }) => {
 		userId: session.user.id!,
 		name: nameToUse,
 		location,
-		namespaceId: process.env.TRELAE_NAMESPACE_ID!,
+		type: type || 'file',
+		size: Number(size) || 0,
+		namespaceId: namespaceId,
 		status: 'pending',
 		visibility: visibility || "private",
 	});
