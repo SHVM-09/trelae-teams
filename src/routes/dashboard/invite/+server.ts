@@ -5,5 +5,5 @@ export const GET = async ({ cookies, url }) => {
 	if (token) {
 		cookies.set("invite_token", token, { path: "/", httpOnly: true });
 	}
-	throw redirect(302, "/login");
+	return redirect(302, "/login");
 };

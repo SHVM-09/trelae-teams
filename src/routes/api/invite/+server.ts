@@ -20,14 +20,34 @@ export const POST = async ({ request, locals }) => {
 		id: randomUUID(),
 		email,
 		teamId: u.teamId!,
+		teamNamespaceId: u.teamNamespaceId!,
+		publicNamespaceId: u.publicNamespaceId!,
 		token
 	});
 
 	const result = await sendEmail({
 		to: [email],
 		subject: "You're invited to Trelae Teams",
-		text: `Join: ${process.env.PUBLIC_SITE_URL}/invite?token=${token}`
+		text: `Join: ${process.env.PUBLIC_SITE_URL}/dashboard/invite?token=${token}`
 	});
+
+	return json({ success: true });
+};
+
+export const DELETE = async ({ request, locals }) => {
+	const session = await locals.auth();
+	if (!session?.user) return new Response("Unauthorized", { status: 401 });
+
+	const userId = session.user.id;
+	if (!userId) return new Response("Forbidden", { status: 403 });
+
+	const [u] = await db.select().from(users).where(eq(users.id, userId));
+	if (!u || u.role !== "admin") return new Response("Forbidden", { status: 403 });
+
+	const { id } = await request.json();
+	if (!id) return new Response("Missing invite ID", { status: 400 });
+
+	await db.delete(invites).where(eq(invites.id, id));
 
 	return json({ success: true });
 };

@@ -60,42 +60,43 @@
 				>
 					<Folder size={16} /> My Files
 				</a>
+				{#if user?.teamId}
+					<!-- Teams: channels + chat -->
+					<a
+						href="/dashboard/teams"
+						class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition hover:bg-zinc-100"
+						class:bg-zinc-100={page.url.pathname.startsWith("/teams")}
+					>
+						<Users size={16} /> Teams
+					</a>
 
-				<!-- Teams: channels + chat -->
-				<a
-					href="/dashboard/teams"
-					class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition hover:bg-zinc-100"
-					class:bg-zinc-100={page.url.pathname.startsWith("/teams")}
-				>
-					<Users size={16} /> Teams
-				</a>
+					<!-- Team Files: shared -->
+					<a
+						href="/dashboard/team-files"
+						class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition hover:bg-zinc-100"
+						class:bg-zinc-100={page.url.pathname.startsWith("/team-files")}
+					>
+						<Folder size={16} /> Team Files
+					</a>
 
-				<!-- Team Files: shared -->
-				<a
-					href="/dashboard/team-files"
-					class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition hover:bg-zinc-100"
-					class:bg-zinc-100={page.url.pathname.startsWith("/team-files")}
-				>
-					<Folder size={16} /> Team Files
-				</a>
+					<!-- Direct Chat -->
+					<a
+						href="/dashboard/chat"
+						class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition hover:bg-zinc-100"
+						class:bg-zinc-100={page.url.pathname.startsWith("/chat")}
+					>
+						<MessageSquare size={16} /> Chat
+					</a>
 
-				<!-- Direct Chat -->
-				<a
-					href="/dashboard/chat"
-					class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition hover:bg-zinc-100"
-					class:bg-zinc-100={page.url.pathname.startsWith("/chat")}
-				>
-					<MessageSquare size={16} /> Chat
-				</a>
-
-				<!-- Public Files -->
-				<a
-					href="/dashboard/public-files"
-					class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition hover:bg-zinc-100"
-					class:bg-zinc-100={page.url.pathname.startsWith("/public")}
-				>
-					<Globe size={16} /> Public Files
-				</a>
+					<!-- Public Files -->
+					<a
+						href="/dashboard/public-files"
+						class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition hover:bg-zinc-100"
+						class:bg-zinc-100={page.url.pathname.startsWith("/public")}
+					>
+						<Globe size={16} /> Public Files
+					</a>
+				{/if}
 
 			</nav>
 		</div>

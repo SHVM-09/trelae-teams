@@ -7,8 +7,11 @@ export const users = pgTable("users", {
   googleId: text("google_id").notNull().unique(),
   name: text("name"),
   avatarUrl: text("avatar_url"),
-  role: text("role").default("member"), // ✅ default role: member
+  role: text("role").default("member"), // default role: member
   teamId: uuid("team_id"),
+  namespaceId: uuid("namespace_id").notNull(),
+  teamNamespaceId: uuid("team_namespace_id"),
+  publicNamespaceId: uuid("public_namespace_id"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -24,6 +27,8 @@ export const teams = pgTable("teams", {
 export const invites = pgTable("invites", {
   id: uuid("id").primaryKey().defaultRandom(),
   teamId: uuid("team_id").notNull(),
+  teamNamespaceId: uuid("team_namespace_id"),
+  publicNamespaceId: uuid("public_namespace_id"),
   email: text("email").notNull(),
   token: text("token").notNull().unique(),
   createdAt: timestamp("created_at").defaultNow(),

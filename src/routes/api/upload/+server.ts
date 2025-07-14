@@ -12,15 +12,24 @@ export const POST = async ({ request, locals }) => {
 	const { filename, visibility, location, type, size } = await request.json();
 	if (!filename) return new Response("Filename required", { status: 400 });
 
-	// 🔑 Pick namespace dynamically based on visibility
+	// Pick namespace dynamically based on visibility
 	let namespaceId: string;
 
 	if (visibility === 'team') {
-		namespaceId = process.env.TRELAE_TEAM_NAMESPACE_ID!;
+		if (!session.user.teamNamespaceId) {
+			return new Response("Team namespace not configured for user", { status: 400 });
+		}
+		namespaceId = session.user.teamNamespaceId;
 	} else if (visibility === 'public') {
-		namespaceId = process.env.TRELAE_PUBLIC_NAMESPACE_ID!;
+		if (!session.user.publicNamespaceId) {
+			return new Response("Public namespace not configured for user", { status: 400 });
+		}
+		namespaceId = session.user.publicNamespaceId;
 	} else {
-		namespaceId = process.env.TRELAE_NAMESPACE_ID!;
+		if (!session.user.namespaceId) {
+			return new Response("Private namespace not configured for user", { status: 400 });
+		}
+		namespaceId = session.user.namespaceId;
 	}
 
 	const namespace = trelae.namespace(namespaceId);

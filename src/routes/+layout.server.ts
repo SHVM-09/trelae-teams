@@ -12,8 +12,15 @@ export const load = async ({ cookies }) => {
 
       if (invite) {
         await db.update(users)
-          .set({ teamId: invite.teamId })
+          .set({
+            teamId: invite.teamId,
+            teamNamespaceId: invite.teamNamespaceId,
+            publicNamespaceId: invite.publicNamespaceId
+          })
           .where(eq(users.email, invite.email));
+
+        // delete the invite after use
+        await db.delete(invites).where(eq(invites.id, invite.id));
       }
 
       cookies.delete("invite_token", { path: "/" });

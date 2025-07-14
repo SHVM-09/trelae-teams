@@ -42,12 +42,20 @@ export const POST = async ({ locals, request }) => {
 		? (session.user as { teamId?: string }).teamId
 		: session.user.id;
 
-	const namespaceId =
-		visibility === 'team'
-			? process.env.TRELAE_TEAM_NAMESPACE_ID!
-			: visibility === 'public'
-				? process.env.TRELAE_PUBLIC_NAMESPACE_ID!
-				: process.env.TRELAE_NAMESPACE_ID!;
+
+	if(!session.user.namespaceId && !session.user.teamNamespaceId && !session.user.publicNamespaceId) {
+		return new Response("Namespace not configured for user", { status: 400 });
+	}
+
+	const namespaceId = isTeam
+						? session.user.teamNamespaceId
+						: visibility === 'public'
+							? session.user.publicNamespaceId
+							: session.user.namespaceId;
+
+	if (!namespaceId) {
+		return new Response("Namespace not configured for user", { status: 400 });
+	}
 
 	const namespace = trelae.namespace(namespaceId);
 

@@ -19,24 +19,29 @@
 	} from "$lib/components/ui/avatar"
   import type { PageProps } from "./$types";
   import ConfirmDeleteDialog from './confirmDeleteDialog.svelte';
-  import { onMount } from 'svelte';
 
   interface Member {
     id: string;
-    name: string;
+    name: string | null;
     email?: string;
     image?: string;
-    role?: string;
+    role?: string | null;
     [key: string]: any;
   }
 
-  let members: Member[] = $state([]);
+  let { data }: PageProps = $props();
+  interface User {
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    role?: string | null;
+    teamId?: string | null;
+    [key: string]: any;
+  }
 
-  onMount(async () => {
-		const res = await fetch('api/dashboard');
-		const data = await res.json();
-		members = data.members;
-	});
+  const user: User | undefined = data.session?.user;
+  let members: Member[] = $state(data.members);
 
 	let confirmOpen = $state(false);
   let userToDelete: Member | null = $state(null);
@@ -67,9 +72,6 @@
 		});
 		members = members.map(m => m.id === id ? { ...m, role } : m);
 	}
-
-  let { data }: PageProps = $props();
-  const user = data.session?.user;
 
   let selectedFile: File | null = $state(null);
   let uploading = $state(false);
@@ -130,6 +132,23 @@
     selectedFile = null;
     uploading = false;
   }
+
+  let invites = $state(data.invites);
+
+  async function deleteInvite(inviteId: string) {
+    const res = await fetch('/api/invite', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: inviteId })
+    });
+
+    if (res.ok) {
+      invites = invites.filter(inv => inv.id !== inviteId);
+      toast.success('Invite deleted');
+    } else {
+      toast.error('Failed to delete invite');
+    }
+  }
 </script>
 
 <div class="max-w-6xl mx-auto px-6 py-12 space-y-12">
@@ -183,7 +202,7 @@
     {/if}
 
     <!-- My Files (always visible) -->
-    <a href="/dashboard/my-files" class="flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 hover:shadow-md transition group">
+    <a href="/dashboard/my-files" class="flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 hover:shadow-md transition group h-fit">
       <div class="flex items-center justify-between mb-4">
         <Folder class="w-6 h-6 text-green-600 group-hover:scale-110 transition" />
         <span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">Private</span>
@@ -202,17 +221,27 @@
         <h3 class="text-lg font-semibold text-zinc-900 mb-1">Team Files</h3>
         <p class="text-sm text-zinc-600">Access & collaborate on team-level files.</p>
       </a>
-    {/if}
 
-    <!-- Public Files (always visible) -->
-    <a href="/public" class="flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 hover:shadow-md transition group max-h-fit">
-      <div class="flex items-center justify-between mb-4">
-        <Link class="w-6 h-6 text-amber-600 group-hover:scale-110 transition" />
-        <span class="text-xs bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full">Public</span>
-      </div>
-      <h3 class="text-lg font-semibold text-zinc-900 mb-1">Public Files</h3>
-      <p class="text-sm text-zinc-600">Browse files shared publicly by your team.</p>
-    </a>
+      <!-- Public Files (always visible) -->
+      <a href="/public" class="flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 hover:shadow-md transition group max-h-fit">
+        <div class="flex items-center justify-between mb-4">
+          <Link class="w-6 h-6 text-amber-600 group-hover:scale-110 transition" />
+          <span class="text-xs bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full">Public</span>
+        </div>
+        <h3 class="text-lg font-semibold text-zinc-900 mb-1">Public Files</h3>
+        <p class="text-sm text-zinc-600">Browse files shared publicly by your team.</p>
+      </a>
+    {:else}
+      <!-- Join and create teams -> go to dashboard/checkout -->
+      <a href="/dashboard/checkout" class="flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 hover:shadow-md transition group">
+        <div class="flex items-center justify-between mb-4">
+          <CreditCard class="w-6 h-6 text-yellow-600 group-hover:scale-110 transition" />
+          <span class="text-xs bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded-full">Upgrade</span>
+        </div>
+        <h3 class="text-lg font-semibold text-zinc-900 mb-1">Upgrade to Teams</h3>
+        <p class="text-sm text-zinc-600">Create teams for collaboration.</p>
+      </a>
+    {/if}
 
     <!-- Upload CTA (always visible) -->
     <div
@@ -221,7 +250,7 @@
       role="presentation"
     >
       <div class="flex items-center justify-between mb-6">
-        <UploadCloud class="w-6 h-6 text-zinc-500 group-hover:text-zinc-700 transition" />
+        <UploadCloud class="w-6 h-6 text-zinc-500 group-hover:text-zinc-700 group-hover:scale-110 transition" />
         <span class="text-xs bg-zinc-200 text-zinc-700 px-2 py-0.5 rounded-full">Quick</span>
       </div>
 
@@ -270,70 +299,155 @@
     </div>
   </section>
 
-  {#if members.length}
-    <section class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-      <div class="flex items-center gap-3 mb-4">
-        <Users class="w-5 h-5 text-blue-600" />
-        <h3 class="text-lg font-semibold text-zinc-900">Members</h3>
-      </div>
+  {#if user?.teamId}
+    {#if members.length}
+      <section class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+          <Users class="w-5 h-5 text-blue-600" />
+          <h3 class="text-lg font-semibold text-zinc-900">Members</h3>
+        </div>
 
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-sm">
-          <thead class="border-b">
-            <tr>
-              <th class="px-4 py-2 text-left font-medium text-zinc-600">Name</th>
-              <th class="px-4 py-2 text-left font-medium text-zinc-600">Email</th>
-              <th class="px-4 py-2 text-left font-medium text-zinc-600">Role</th>
-              <th class="px-4 py-2 text-right"></th>
-              <th class="px-4 py-2 text-right"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {#each members as member}
-              <tr class="border-b hover:bg-zinc-50 transition last:border-b-0">
-                <td class="px-4 py-3 font-medium text-zinc-900">{member.name}</td>
-                <td class="px-4 py-3 text-zinc-600">{member.email}</td>
-                <td class="px-4 py-3">
-                  <span class={`inline-block rounded px-2 py-0.5 text-xs ${
-                    member.role === 'admin'
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-green-100 text-green-800'
-                  }`}>
-                    {member.role}
-                  </span>
-                </td>
-                <td class="px-4 py-3">
-                  {#if user?.role === 'admin' && member.id !== user.id}
-                    <Button size="sm" class="ml-2 text-xs w-24 h-6" onclick={() => changeRole(member.id, member.role === 'admin' ? 'member' : 'admin')}>
-                      {member.role === 'admin' ? 'Make Member' : 'Make Admin'}
-                    </Button>
-                  {/if}
-                </td>
-                <td class="px-4 py-3 text-right">
-                  {#if user?.role === 'admin' && member.id !== user.id}
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      class="size-6"
-                      onclick={() => askRemove(member)}
-                    >
-                      <Trash class="size-3.5" />
-                    </Button>
-                  {/if}
-                </td>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="border-b">
+              <tr>
+                <th class="px-4 py-2 text-left font-medium text-zinc-600">Name</th>
+                <th class="px-4 py-2 text-left font-medium text-zinc-600">Email</th>
+                <th class="px-4 py-2 text-left font-medium text-zinc-600">Role</th>
+                <th class="px-4 py-2 text-right"></th>
+                <th class="px-4 py-2 text-right"></th>
               </tr>
-            {/each}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  {:else}
-    <section class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-      <div class="flex items-center gap-3 mb-4">
-        <Users class="w-5 h-5 text-zinc-500" />
-        <h3 class="text-lg font-semibold text-zinc-900">No Members Yet</h3>
-      </div>
-    </section>
+            </thead>
+            <tbody>
+              {#each members as member}
+                <tr class="border-b hover:bg-zinc-50 transition last:border-b-0">
+                  <td class="px-4 py-3 font-medium text-zinc-900">{member.name}</td>
+                  <td class="px-4 py-3 text-zinc-600">{member.email}</td>
+                  <td class="px-4 py-3">
+                    <span class={`inline-block rounded px-2 py-0.5 text-xs ${
+                      member.role === 'admin'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {member.role}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3">
+                    {#if user?.role === 'admin' && member.id !== user.id}
+                      <Button size="sm" class="ml-2 text-xs w-24 h-6" onclick={() => changeRole(member.id, member.role === 'admin' ? 'member' : 'admin')}>
+                        {member.role === 'admin' ? 'Make Member' : 'Make Admin'}
+                      </Button>
+                    {/if}
+                  </td>
+                  <td class="px-4 py-3 text-right">
+                    {#if user?.role === 'admin' && member.id !== user.id}
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        class="size-6"
+                        onclick={() => askRemove(member)}
+                      >
+                        <Trash class="size-3.5" />
+                      </Button>
+                    {/if}
+                  </td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    {:else}
+      <section class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+          <Users class="w-5 h-5 text-blue-600" />
+          <h3 class="text-lg font-semibold text-zinc-900">Members</h3>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="border-b">
+              <tr>
+                <th class="px-4 py-2 text-left font-medium text-zinc-600">Name</th>
+                <th class="px-4 py-2 text-left font-medium text-zinc-600">Email</th>
+                <th class="px-4 py-2 text-left font-medium text-zinc-600">Role</th>
+                <th class="px-4 py-2 text-right"></th>
+                <th class="px-4 py-2 text-right"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b hover:bg-zinc-50 transition last:border-b-0">
+                <td colspan="5" class="px-4 py-3 text-center"> No members yet</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    {/if}
+    {#if invites.length}
+      <section class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm max-w-lg">
+        <div class="flex items-center gap-3 mb-4">
+          <Users class="w-5 h-5 text-indigo-600" />
+          <h3 class="text-lg font-semibold text-zinc-900">Invites</h3>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="border-b">
+              <tr>
+                <th class="px-4 py-2 text-left font-medium text-zinc-600">Email</th>
+                <th class="px-4 py-2 text-left font-medium text-zinc-600">Sent At</th>
+                <th class="px-4 py-2 text-right"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each invites as invite}
+                <tr class="border-b hover:bg-zinc-50 transition last:border-b-0">
+                  <td class="px-4 py-3 font-medium text-zinc-900">{invite.email}</td>
+                  <td class="px-4 py-3 text-zinc-600">{invite.createdAt ? new Date(invite.createdAt).toLocaleDateString() : ''}</td>
+                  <td class="px-4 py-3 text-right">
+                    {#if user?.role === 'admin'}
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        class="size-6"
+                        onclick={() => deleteInvite(invite.id)}
+                      >
+                        <Trash class="size-3.5" />
+                      </Button>
+                    {/if}
+                  </td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    {:else}
+      <section class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm max-w-lg">
+        <div class="flex items-center gap-3 mb-4">
+          <Users class="w-5 h-5 text-zinc-500" />
+          <h3 class="text-lg font-semibold text-zinc-900">Invites</h3>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="border-b">
+              <tr>
+                <th class="px-4 py-2 text-left font-medium text-zinc-600">Email</th>
+                <th class="px-4 py-2 text-left font-medium text-zinc-600">Sent At</th>
+                <th class="px-4 py-2 text-right"></th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr class="border-b hover:bg-zinc-50 transition last:border-b-0">
+                  <td colspan="3" class="px-4 py-3 text-center">No pending invites</td>
+                </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    {/if}
   {/if}
 </div>
 

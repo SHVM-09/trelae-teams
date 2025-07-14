@@ -4,7 +4,7 @@
 	import { goto } from "$app/navigation";
 	import type { PageProps } from "./$types";
 
-	let { data } = $props() as { data: { session?: { user?: { name?: string; image?: string; email?: string } } | null } };
+	let { data } = $props() as { data: { session?: { user?: { name?: string; image?: string; email?: string; namespaceId?: string; teamNamespaceId?: string; publicNamespaceId?: string } } } };
 </script>
 
 <!-- Header component -->

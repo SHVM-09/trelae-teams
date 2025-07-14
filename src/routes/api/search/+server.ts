@@ -1,21 +1,31 @@
 import { json } from '@sveltejs/kit';
 import { trelae } from '$lib/trelae';
 
-export const GET = async ({ url }) => {
+export const GET = async ({ url, locals }) => {
 	const query = url.searchParams.get('q');
 	const visibility = url.searchParams.get('visibility') ?? 'private';
+	const session = await locals.auth();
+	if (!session?.user) return new Response("Unauthorized", { status: 401 });
 
 	if (!query) {
 		return json({ files: [], folders: [] });
 	}
 
+	if(!session.user.namespaceId && !session.user.teamNamespaceId && !session.user.publicNamespaceId) {
+		return new Response("Namespace not configured for user", { status: 400 });
+	}
+
 	// Pick correct namespace
 	const namespaceId =
 		visibility === 'team'
-			? process.env.TRELAE_TEAM_NAMESPACE_ID!
+			? session.user.teamNamespaceId
 			: visibility === 'public'
-				? process.env.TRELAE_PUBLIC_NAMESPACE_ID!
-				: process.env.TRELAE_NAMESPACE_ID!;
+				? session.user.publicNamespaceId
+				: session.user.namespaceId;
+
+	if (!namespaceId) {
+		return new Response("Namespace ID is undefined", { status: 400 });
+	}
 
 	const namespace = trelae.namespace(namespaceId);
 

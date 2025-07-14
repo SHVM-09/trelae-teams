@@ -10,14 +10,22 @@ export const POST = async ({ locals, request }) => {
 
 	const { name, location, visibility } = await request.json();
 	if (!name) return new Response("Folder name required", { status: 400 });
+	
+	if(!session.user.namespaceId && !session.user.teamNamespaceId && !session.user.publicNamespaceId) {
+		return new Response("Namespace not configured for user", { status: 400 });
+	}
 
 	// Pick namespace based on visibility
 	const namespaceId =
 		visibility === 'team'
-			? process.env.TRELAE_TEAM_NAMESPACE_ID!
+			? session.user.teamNamespaceId
 			: visibility === 'public'
-				? process.env.TRELAE_PUBLIC_NAMESPACE_ID!
-				: process.env.TRELAE_NAMESPACE_ID!;
+				? session.user.publicNamespaceId
+				: session.user.namespaceId;
+
+	if (!namespaceId) {
+		return new Response("Namespace ID is missing.", { status: 400 });
+	}
 
 	const namespace = trelae.namespace(namespaceId);
 

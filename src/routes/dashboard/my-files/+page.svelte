@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
 	import { DropdownMenu } from 'bits-ui';
-	import { Trash, Folder as FolderIcon, File as FileIcon, ArrowLeft, Copy, Move, LayoutGrid, Table, MoreVertical, Download, ExternalLink } from 'lucide-svelte';
+	import { Trash, Folder as FolderIcon, File as FileIcon, ArrowLeft, Copy, Move, LayoutGrid, Table, MoreVertical, Download, ExternalLink, RefreshCw } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 	import ConfirmDeleteDialog from '../confirmDeleteDialog.svelte';
 	import UploadFile from '../uploadFile.svelte';
@@ -319,6 +319,7 @@
 
 	// Wrap your searchFiles in debounce:
 	const debouncedSearch = debounce(searchFiles);
+	let rotate = $state(false);
 </script>
 
 <div class="max-w-6xl mx-auto px-6 py-12 space-y-12">
@@ -390,6 +391,17 @@
 						Move here
 					</Button>
 				{/if}
+				<Button
+					variant="outline"
+					onclick={() => {
+						rotate = true;
+						loadFiles();
+						toast.success('Refreshed file list');
+						setTimeout(() => rotate = false, 500);
+					}}
+				>
+					<RefreshCw class="size-4 {rotate ? 'animate-spin' : ''}" />
+				</Button>
 			</div>
 		</div>
 		{#if !isGridView}
