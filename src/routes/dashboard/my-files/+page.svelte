@@ -186,11 +186,7 @@
 			return;
 		}
 
-		const newLocation = currentLocation.trim();
-		if (!newLocation) {
-			toast.error('Please navigate to a folder to paste the file.[Not supported in root]');
-			return;
-		}
+		const newLocation = currentLocation.trim() || "";
 
 		const res = await fetch('/api/files', {
 			method: 'POST',
@@ -231,11 +227,7 @@
 			return;
 		}
 
-		const newLocation = currentLocation.trim();
-		if (!newLocation) {
-			toast.error('Please navigate to a folder to move the file.[Not supported in root]');
-			return;
-		}
+		const newLocation = currentLocation.trim() || '';
 
 		const res = await fetch('/api/files', {
 			method: 'POST',
@@ -382,12 +374,19 @@
 					</button>
 				</div>
 				{#if copiedFileId}
-					<Button variant="outline" onclick={pasteFile} disabled={!currentLocation}>
+					<Button variant="outline" onclick={pasteFile}>
 						Paste here
 					</Button>
 				{/if}
 				{#if moveFileId}
-					<Button variant="outline" onclick={confirmMoveFile} disabled={!currentLocation}>
+					<Button
+						variant="outline"
+						onclick={confirmMoveFile}
+						disabled={myFiles.find(f => f.id === moveFileId)?.location === currentLocation}
+						title={myFiles.find(f => f.id === moveFileId)?.location === currentLocation
+							? 'File is already in this location'
+							: 'Move file here'}
+					>
 						Move here
 					</Button>
 				{/if}
@@ -419,7 +418,7 @@
 							<th class="px-4 py-2 text-left font-medium text-zinc-600">Type</th>
 							<th class="px-4 py-2 text-left font-medium text-zinc-600">Size</th>
 							<th class="px-4 py-2 text-left font-medium text-zinc-600">Status</th>
-							<th class="px-4 py-2 text-left font-medium text-zinc-600">Created</th>
+							<th class="px-4 py-2 text-left font-medium text-zinc-600">Created At</th>
 							<th class="px-4 py-2 text-right"></th>
 						</tr>
 					</thead>
@@ -467,7 +466,7 @@
 										</span>
 									</td>
 									<td class="px-4 py-3 text-zinc-600 text-nowrap">
-										{#if file.createdAt}
+										{#if file.createdAt && file.type !== 'folder'}
 											{new Date(file.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
 											({new Date(file.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })})
 										{:else}

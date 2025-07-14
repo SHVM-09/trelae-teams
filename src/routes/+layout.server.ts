@@ -1,6 +1,6 @@
 import { db } from "$lib/server/db";
 import { invites, users } from "$lib/server/db/schema";
-import { eq } from "drizzle-orm"; // ✅ Fix: import eq
+import { eq } from "drizzle-orm";
 
 export const load = async ({ cookies }) => {
     const token = cookies.get("invite_token");

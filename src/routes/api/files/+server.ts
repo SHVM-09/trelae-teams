@@ -51,7 +51,7 @@ export const POST = async ({ locals, request }) => {
 
 	const namespace = trelae.namespace(namespaceId);
 
-	// ✅ DELETE
+	// DELETE
 	if (body.action === 'delete') {
 		const fileId = body.fileId;
 		await trelae.file(fileId).delete();
@@ -59,7 +59,7 @@ export const POST = async ({ locals, request }) => {
 		return json({ ok: true });
 	}
 
-	// ✅ BULK DELETE
+	// BULK DELETE
 	if (body.action === 'bulk-delete') {
 		const ids: string[] = body.fileIds;
 		await trelae.files(ids).delete();
@@ -67,7 +67,7 @@ export const POST = async ({ locals, request }) => {
 		return json({ ok: true, deleted: ids });
 	}
 
-	// ✅ DOWNLOAD
+	// DOWNLOAD
 	if (body.action === 'download') {
 		const fileId = body.fileId;
 		// @ts-expect-error
@@ -75,7 +75,7 @@ export const POST = async ({ locals, request }) => {
 		return json({ url });
 	}
 
-	// ✅ COPY
+	// COPY
 	if (body.action === 'copy') {
 		const { fileId, newLocation, name } = body;
 
@@ -133,11 +133,11 @@ export const POST = async ({ locals, request }) => {
 		return json({ ok: true, copiedId: copied.getId() });
 	}
 
-	// ✅ MOVE
+	// MOVE
 	if (body.action === 'move') {
 		const { fileId, newLocation, newName } = body;
-		if (!fileId || !newLocation) {
-			return new Response('Missing fileId or newLocation', { status: 400 });
+		if (!fileId) {
+			return new Response('Missing fileId', { status: 400 });
 		}
 
 		const trelaeFile = trelae.file(fileId);
@@ -157,7 +157,7 @@ export const POST = async ({ locals, request }) => {
 				location: newLocation,
 				namespaceId,
 				visibility,
-				userId // ✅ move may change ownership
+				userId // move may change ownership
 			})
 			.where(eq(filesTable.id, fileId));
 

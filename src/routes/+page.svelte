@@ -10,7 +10,7 @@
 <!-- Header component -->
 <Header session={data.session as { user?: { name?: string; image?: string; email?: string } } | null | undefined} />
 
-<!-- 🌟 Hero Section -->
+<!-- Hero Section -->
 <section class="max-w-7xl mx-auto px-6 py-28 text-center flex flex-col items-center bg-gradient-to-b from-white to-zinc-50 rounded-lg">
 	<h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-zinc-900 mb-6">
 		Trelae<span class="text-zinc-600 text-6xl md:text-8xl">Teams</span>
@@ -42,7 +42,7 @@
 	{/if}
 </section>
 
-<!-- ✅ Unique 3-Column Highlights -->
+<!-- Unique 3-Column Highlights -->
 <section class="max-w-7xl mx-auto px-6 py-24 grid md:grid-cols-3 gap-10 text-left">
 	<div class="space-y-4 bg-gradient-to-b from-white to-zinc-100 p-6 rounded-lg shadow-md">
 		<div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
@@ -73,7 +73,7 @@
 	</div>
 </section>
 
-<!-- ✅ New About Section -->
+<!-- New About Section -->
 <section class="bg-blue-50 py-20">
 	<div class="max-w-4xl mx-auto text-center px-6">
 		<h3 class="text-3xl md:text-4xl font-bold text-zinc-900 mb-4">
@@ -87,7 +87,7 @@
 	</div>
 </section>
 
-<!-- ✅ Footer -->
+<!-- Footer -->
 <footer class="bg-white border-t py-6 mt-12 text-center text-sm text-zinc-500">
 	© {new Date().getFullYear()} Trelae Teams. Your Files. Perfected.
 </footer>

@@ -19,37 +19,50 @@ export const GET = async ({ url }) => {
 
 	const namespace = trelae.namespace(namespaceId);
 
-	const results = await namespace.getFiles({
+	const { files: rawFiles, folders: rawFolders } = await namespace.getFiles({
 		query,
 		limit: 50
 	});
 
-	const classified = await Promise.all(
-		results.files.map(async (item) => {
-			const id = item.getId();
+	// files: with metadata
+	const files = await Promise.all(
+		rawFiles.map(async (file) => {
+			const id = file.getId();
 			if (!id) return null;
 
-			const trelaeFile = trelae.file(id);
-			const meta = await trelaeFile.getMetaData();
-
-			// Classify by trailing slash or size
-			const isFolder = item.getName()?.endsWith('/') || meta.size === 0;
+			const meta = await trelae.file(id).getMetaData();
 
 			return {
-				id: id,
-				name: item.getName(),
-				location: item.getLocation(),
+				id,
+				name: file.getName(),
+				location: file.getLocation(),
 				createdAt: meta.createdAt,
-				size: isFolder ? 0 : meta.size ?? 0,
-				type: isFolder ? 'folder' : 'file'
+				size: meta.size ?? 0,
+				type: 'file'
 			};
 		})
 	);
 
-	const files = classified.filter((f) => f && f.type === 'file');
-	const folders = classified.filter((f) => f && f.type === 'folder');
+	// folders: with metadata
+	const folders = await Promise.all(
+		rawFolders.map(async (folder) => {
+            // const id = folder.getId();
+            // if (!id) return null;
 
-	console.log('Search results:', { files, folders });
+			// const meta = await trelae.folder(id).getMetaData();
+			return {
+				id: folder.getId(),
+				name: folder.getName(),
+				location: folder.getLocation(),
+				// createdAt: meta.createdAt,
+				size: 0,
+				type: 'folder'
+			};
+		})
+	);
 
-	return json({ files, folders });
+	return json({
+		files: files.filter(Boolean),
+		folders
+	});
 };
