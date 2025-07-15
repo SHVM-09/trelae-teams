@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import { users, invites } from '$lib/server/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -24,9 +24,23 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.from(invites)
 		.where(eq(invites.teamId, me.teamId));
 
+	// Clean up invites where invited email is already a member
+	const memberEmails = teamMembers.map((m) => m.email).filter(Boolean);
+	const inviteEmails = teamInvites.map((i) => i.email);
+
+	const emailsToDelete = inviteEmails.filter(email => memberEmails.includes(email));
+	if (emailsToDelete.length > 0) {
+		await db
+			.delete(invites)
+			.where(inArray(invites.email, emailsToDelete));
+	}
+
+	// Return only valid invites after cleanup
+	const updatedInvites = teamInvites.filter(i => !emailsToDelete.includes(i.email));
+
 	return {
 		session,
 		members: teamMembers,
-		invites: teamInvites
+		invites: updatedInvites
 	};
 };

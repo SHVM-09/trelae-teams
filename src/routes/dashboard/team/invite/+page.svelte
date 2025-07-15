@@ -34,7 +34,7 @@
 	<title>Invite Team Members | Trelae Teams</title>
 </svelte:head>
 
-<div class="relative isolate overflow-hidden bg-gray-900 py-16 sm:py-24 lg:py-32 lg:my-12 rounded-xl">
+<div class="relative isolate overflow-hidden bg-gray-900 py-16 sm:py-24 lg:py-32 size-full rounded-xl">
 	<div class="mx-auto max-w-7xl px-6 lg:px-8">
 		<div class="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none">
 			<div class="max-w-xl lg:max-w-lg">

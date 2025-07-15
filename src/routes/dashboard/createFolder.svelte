@@ -81,7 +81,7 @@
 			/>
 
 			<Button
-				class="mt-4"
+				class="mt-4 w-fit"
 				disabled={!folderName.trim() || creating}
 				onclick={createFolder}
 			>

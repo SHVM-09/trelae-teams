@@ -16,15 +16,18 @@ export const GET = async ({ url, locals }) => {
 	}
 
 	// Pick correct namespace
-	const namespaceId =
-		visibility === 'team'
-			? session.user.teamNamespaceId
-			: visibility === 'public'
-				? session.user.publicNamespaceId
-				: session.user.namespaceId;
+	let namespaceId: string | undefined;
 
+	if (visibility === 'private') {
+		namespaceId = session.user.namespaceId;
+	} else if (visibility === 'team') {
+		namespaceId = session.user.teamNamespaceId;
+	} else if (visibility === 'public') {
+		namespaceId = session.user.publicNamespaceId;
+	}
+	
 	if (!namespaceId) {
-		return new Response("Namespace ID is undefined", { status: 400 });
+		return new Response("Namespace ID is undefined for given visibility", { status: 400 });
 	}
 
 	const namespace = trelae.namespace(namespaceId);

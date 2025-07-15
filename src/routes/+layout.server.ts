@@ -8,7 +8,6 @@ export const load = async ({ cookies }) => {
       const invite = await db.query.invites.findFirst({
         where: (i, { eq }) => eq(i.token, token)
       });
-      console.log("Invite:", invite);
 
       if (invite) {
         await db.update(users)
@@ -17,10 +16,7 @@ export const load = async ({ cookies }) => {
             teamNamespaceId: invite.teamNamespaceId,
             publicNamespaceId: invite.publicNamespaceId
           })
-          .where(eq(users.email, invite.email));
-
-        // delete the invite after use
-        await db.delete(invites).where(eq(invites.id, invite.id));
+          .where(eq(users.email, invite.email))
       }
 
       cookies.delete("invite_token", { path: "/" });

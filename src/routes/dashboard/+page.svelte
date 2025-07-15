@@ -151,7 +151,7 @@
   }
 </script>
 
-<div class="max-w-6xl mx-auto px-6 py-12 space-y-12">
+<div class="max-w-6xl mx-auto px-6 py-12 space-y-6">
   <!-- Welcome -->
   <section class="rounded-xl bg-gradient-to-br from-white to-zinc-50 p-8 border border-zinc-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
     <div class="flex items-center gap-4">
@@ -191,7 +191,7 @@
   <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
     {#if user?.teamId && user?.role?.trim() !== "member"}
       <!-- Invite -->
-      <a href="/dashboard/teams/invite" class="flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 hover:shadow-md transition group">
+      <a href="/dashboard/team/invite" class="flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 hover:shadow-md transition group">
         <div class="flex items-center justify-between mb-4">
           <Users class="w-6 h-6 text-blue-600 group-hover:scale-110 transition" />
           <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">Team</span>
@@ -245,7 +245,7 @@
 
     <!-- Upload CTA (always visible) -->
     <div
-      class="flex flex-col justify-between rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-6 hover:bg-zinc-100 transition group md:col-span-2 cursor-pointer shadow-sm"
+      class="flex flex-col justify-between rounded-xl border border-dashed border-zinc-300 p-6 hover:bg-zinc-50 transition group md:col-span-2 cursor-pointer shadow-sm"
       onclick={openFilePicker}
       role="presentation"
     >

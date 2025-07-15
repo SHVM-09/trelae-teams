@@ -63,11 +63,11 @@
 				{#if user?.teamId}
 					<!-- Teams: channels + chat -->
 					<a
-						href="/dashboard/teams"
+						href="/dashboard/team"
 						class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition hover:bg-zinc-100"
-						class:bg-zinc-100={page.url.pathname.startsWith("/teams")}
+						class:bg-zinc-100={page.url.pathname.startsWith("/team")}
 					>
-						<Users size={16} /> Teams
+						<Users size={16} /> Team
 					</a>
 
 					<!-- Team Files: shared -->
@@ -117,7 +117,7 @@
 	<!-- Sidebar Toggle -->
 	<Sidebar.Trigger />
 
-	<main class="flex-1 overflow-auto pl-2 pr-4 py-10">
+	<main class="flex-1 overflow-auto pl-2 p-4">
 		{@render children?.()}
 	</main>
 </Sidebar.Provider>

@@ -5,7 +5,6 @@ import { db } from "$lib/server/db";
 import { users } from "$lib/server/db/schema";
 import { randomUUID } from "crypto";
 import { trelae } from '$lib/trelae';
-import { eq } from "drizzle-orm";
 
 export const handle = SvelteKitAuth({
 	providers: [

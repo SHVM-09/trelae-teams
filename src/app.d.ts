@@ -18,6 +18,7 @@ declare global {
                 email?: string | null;
                 image?: string | null;
                 id?: string;
+                role?: string;
                 namespaceId?: string;
                 teamNamespaceId?: string;
                 publicNamespaceId?: string;

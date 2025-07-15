@@ -2,7 +2,7 @@ import { json } from "@sveltejs/kit";
 import { db } from "$lib/server/db";
 import { invites, users } from "$lib/server/db/schema";
 import { randomUUID } from "crypto";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { sendEmail } from "$lib/server/email";
 
 export const POST = async ({ request, locals }) => {
@@ -14,8 +14,28 @@ export const POST = async ({ request, locals }) => {
 	if (!u || u.role !== "admin") return new Response("Forbidden", { status: 403 });
 
 	const { email } = await request.json();
-	const token = randomUUID();
+	if (!email || typeof email !== 'string') {
+		return new Response("Invalid email", { status: 400 });
+	}
 
+	//  Check if user already exists in team
+	const existingUser = await db.query.users.findFirst({
+		where: (user, { eq }) => and(eq(user.email, email), eq(user.teamId, u.teamId!))
+	});
+	if (existingUser) {
+		return new Response("User is already a team member", { status: 409 });
+	}
+
+	//  Check if already invited
+	const existingInvite = await db.query.invites.findFirst({
+		where: (inv, { eq, and }) => and(eq(inv.email, email), eq(inv.teamId, u.teamId!))
+	});
+	if (existingInvite) {
+		return new Response("User already invited", { status: 409 });
+	}
+
+	//  Insert and send invite
+	const token = randomUUID();
 	await db.insert(invites).values({
 		id: randomUUID(),
 		email,
