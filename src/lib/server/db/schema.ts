@@ -20,6 +20,7 @@ export const teams = pgTable("teams", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   plan: text("plan").notNull(), // e.g. basic / pro / enterprise
+  publicPassword: text("public_password"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

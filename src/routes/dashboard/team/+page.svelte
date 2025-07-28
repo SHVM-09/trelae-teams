@@ -1,7 +1,8 @@
-<script lang="ts">
-  import { Trash } from 'lucide-svelte';
+  <script lang="ts">
+  import { Trash, Lock, X } from 'lucide-svelte';
   import { Button } from '$lib/components/ui/button';
   import { toast } from 'svelte-sonner';
+  import { Dialog } from 'bits-ui';
   import ConfirmDeleteDialog from '../confirmDeleteDialog.svelte';
   import type { PageProps } from './$types';
 
@@ -62,7 +63,35 @@
       toast.error('Failed to delete invite');
     }
   }
-</script>
+
+  // 🔐 Public password dialog state and logic
+  let publicPassword = $state('');
+  let savingPassword = $state(false);
+  let passwordDialogOpen = $state(false);
+
+  async function savePublicPassword() {
+    if (!publicPassword.trim()) {
+      toast.error('Password cannot be empty');
+      return;
+    }
+    savingPassword = true;
+    try {
+      const res = await fetch('/api/team/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: publicPassword.trim() })
+      });
+      if (!res.ok) throw new Error();
+      toast.success('Public access password updated');
+      publicPassword = '';
+      passwordDialogOpen = false;
+    } catch {
+      toast.error('Failed to save password');
+    } finally {
+      savingPassword = false;
+    }
+  }
+  </script>
 
 <div class="max-w-4xl mx-auto py-12 space-y-12">
   <!-- Members Table -->
@@ -151,11 +180,52 @@
   </section>
 </div>
 
-<ConfirmDeleteDialog
+  <ConfirmDeleteDialog
   bind:open={confirmOpen}
   title="Remove Member?"
   descriptionHTML={`Are you sure you want to remove <strong>${userToDelete?.name}</strong>? This cannot be undone.`}
   confirmLabel="Remove"
   destructive={true}
   onConfirm={confirmRemove}
-/>
+  />
+
+  <!-- 🔐 Public Access Password Section -->
+  <div class="max-w-4xl mx-auto pt-2 flex justify-end">
+  <Button onclick={() => (passwordDialogOpen = true)}>
+    <Lock class="size-4 mr-2" />
+    Change Public Password
+  </Button>
+  </div>
+
+  <Dialog.Root bind:open={passwordDialogOpen}>
+  <Dialog.Portal>
+    <Dialog.Overlay class="fixed inset-0 z-50 bg-black/70" />
+    <Dialog.Content
+      onclick={(e) => e.stopPropagation()}
+      class="fixed top-[50%] left-[50%] z-50 grid w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-lg border bg-white p-7 shadow-popover"
+    >
+      <Dialog.Title class="text-xl font-semibold tracking-tight text-zinc-800 mb-4">
+        Set Public Access Password
+      </Dialog.Title>
+
+      <Dialog.Close class="absolute top-2 right-2 rounded-md p-1 text-zinc-500 hover:text-zinc-800">
+        <X size="16" />
+      </Dialog.Close>
+
+      <input
+        type="text"
+        placeholder="Enter password"
+        bind:value={publicPassword}
+        class="w-full rounded border border-zinc-300 px-3 py-2 text-sm text-zinc-800"
+      />
+
+      <Button
+        class="mt-4 w-fit"
+        disabled={!publicPassword.trim() || savingPassword}
+        onclick={savePublicPassword}
+      >
+        {savingPassword ? 'Saving...' : 'Save Password'}
+      </Button>
+    </Dialog.Content>
+  </Dialog.Portal>
+  </Dialog.Root>

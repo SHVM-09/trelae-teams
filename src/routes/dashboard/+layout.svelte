@@ -90,7 +90,7 @@
 
 					<!-- Public Files -->
 					<a
-						href="/dashboard/public-files"
+						href="/public-files"
 						class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition hover:bg-zinc-100"
 						class:bg-zinc-100={page.url.pathname.startsWith("/public")}
 					>

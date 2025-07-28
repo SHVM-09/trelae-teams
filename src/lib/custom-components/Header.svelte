@@ -25,6 +25,9 @@
 			<a href="/" class="text-sm font-medium text-zinc-700 hover:text-zinc-900 transition-colors">
 				Home
 			</a>
+			<a href="/public-files" class="text-sm font-medium text-zinc-700 hover:text-zinc-900 transition-colors">
+				Public Files
+			</a>
 
 			{#if session}
 				<a href="/dashboard" class="text-sm font-medium text-zinc-700 hover:text-zinc-900 transition-colors">Dashboard</a>
@@ -60,6 +63,7 @@
 	{#if isOpen}
 		<nav class="md:hidden px-6 pb-4">
 			<a href="/" class="block py-2 text-sm font-medium text-zinc-700 hover:text-zinc-900">Home</a>
+			<a href="/public-files" class="block py-2 text-sm font-medium text-zinc-700 hover:text-zinc-900">Public Files</a>
 
 			{#if session}
 				<a href="/dashboard" class="block py-2 text-sm font-medium text-zinc-700 hover:text-zinc-900">Dashboard</a>

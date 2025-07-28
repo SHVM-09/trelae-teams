@@ -157,7 +157,7 @@
     <div class="flex items-center gap-4">
       <Avatar class="shrink-0 size-28 rounded-lg">
 					<AvatarImage src={user?.image ?? "https://placehold.co/600x400"} alt={user?.name ?? "User"} />
-					<AvatarFallback>{user?.name?.[0] ?? "U"}</AvatarFallback>
+					<AvatarFallback class="text-3xl">{user?.name?.[0] ?? "U"}</AvatarFallback>
 			</Avatar>
       <div>
         <h1 class="text-3xl font-bold text-zinc-900">

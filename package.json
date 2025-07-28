@@ -23,6 +23,7 @@
 		"@sveltejs/kit": "^2.16.0",
 		"@sveltejs/vite-plugin-svelte": "^5.0.0",
 		"@tailwindcss/vite": "^4.0.0",
+		"@types/bcryptjs": "^3.0.0",
 		"@types/node": "^24.0.10",
 		"bits-ui": "^2.8.6",
 		"clsx": "^2.1.1",
@@ -48,11 +49,12 @@
 		"@auth/sveltekit": "^1.10.0",
 		"@neondatabase/serverless": "^1.0.1",
 		"@tailwindcss/vite": "^4.1.11",
+		"bcryptjs": "^3.0.2",
 		"dotenv": "^17.0.1",
 		"drizzle-orm": "^0.44.2",
 		"resend": "^4.6.0",
 		"svelte-sonner": "^1.0.5",
 		"tailwindcss": "^4.1.11",
-		"trelae-files": "^0.1.1"
+		"trelae-files": "^0.1.4"
 	}
 }

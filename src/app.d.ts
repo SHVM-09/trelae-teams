@@ -19,6 +19,7 @@ declare global {
                 image?: string | null;
                 id?: string;
                 role?: string;
+                teamId?: string;
                 namespaceId?: string;
                 teamNamespaceId?: string;
                 publicNamespaceId?: string;
