@@ -226,15 +226,60 @@
   });
 </script>
 
-<Header />
+<Header session={
+  data.session
+    ? {
+        ...data.session,
+        user: data.session.user
+          ? {
+              ...data.session.user,
+              name: data.session.user.name ?? undefined,
+              image: data.session.user.image ?? undefined,
+              email: data.session.user.email ?? undefined
+            }
+          : undefined
+      }
+    : data.session
+}/>
 
 {#if !accessGranted}
-  <!-- ---------- PASSWORD FORM ---------- -->
-  <div class="max-w-md mx-auto mt-24 p-6 bg-white shadow rounded space-y-4">
-    <h2 class="text-xl font-semibold text-center">Enter Access Details</h2>
-    <input class="w-full px-3 py-2 border rounded" placeholder="Team ID"     bind:value={teamId}/>
-    <input class="w-full px-3 py-2 border rounded" placeholder="Password" type="password" bind:value={password}/>
-    <Button class="w-full" onclick={requestAccess}>Submit</Button>
+  <!-- ---------- PUBLIC FILE ACCESS GATE ---------- -->
+  <div class="max-w-md mx-auto mt-28 p-8 bg-white shadow-xl border border-zinc-200 rounded-xl space-y-6 text-center">
+    <!-- Heading -->
+    <div class="space-y-2">
+      <h2 class="text-2xl font-bold text-zinc-900">Access Public Files</h2>
+      <p class="text-zinc-600 text-sm leading-relaxed">
+        These files are shared by a team using Trelae. To view or download them, please enter the team ID and access password provided to you.
+      </p>
+    </div>
+
+    <!-- Input fields -->
+    <div class="space-y-4 text-left">
+      <label for="team-id" class="block text-sm font-medium text-zinc-700">Team ID</label>
+      <input
+        class="w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm"
+        id="team-id"
+        placeholder="Enter Team ID"
+        bind:value={teamId}
+      />
+
+      <label for="access-password" class="block text-sm font-medium text-zinc-700">Access Password</label>
+      <input
+        type="password"
+        id="access-password"
+        class="w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm"
+        placeholder="Enter Password"
+        bind:value={password}
+      />
+    </div>
+
+    <!-- Submit button -->
+    <Button
+      class="w-full py-2 text-sm font-medium shadow-sm hover:shadow transition"
+      onclick={requestAccess}
+    >
+      Unlock Files
+    </Button>
   </div>
 {:else}
   <!-- ---------- FILE MANAGER ---------- -->

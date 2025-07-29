@@ -223,7 +223,7 @@
       </a>
 
       <!-- Public Files (always visible) -->
-      <a href="/public" class="flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 hover:shadow-md transition group max-h-fit">
+      <a href="/public-files" class="flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 hover:shadow-md transition group max-h-fit">
         <div class="flex items-center justify-between mb-4">
           <Link class="w-6 h-6 text-amber-600 group-hover:scale-110 transition" />
           <span class="text-xs bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full">Public</span>

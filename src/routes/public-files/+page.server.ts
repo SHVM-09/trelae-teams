@@ -32,5 +32,5 @@ export const load: PageServerLoad = async ({ cookies, locals }) => {
 		.from(filesTable)
 		.where(and(eq(filesTable.visibility, 'public')));
 
-	return { files, accessGranted: true, teamId, canEdit };
+	return { files, accessGranted: true, teamId, canEdit, session};
 };

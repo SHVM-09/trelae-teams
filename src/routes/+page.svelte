@@ -2,13 +2,13 @@
 	import { Button } from "$lib/components/ui/button";
     import Header from "$lib/custom-components/Header.svelte";
 	import { goto } from "$app/navigation";
-	import type { PageProps } from "./$types";
 
-	let { data } = $props() as { data: { session?: { user?: { name?: string; image?: string; email?: string; namespaceId?: string; teamNamespaceId?: string; publicNamespaceId?: string } } } };
+	const { data } = $props();
+	const { session } = data.data;
 </script>
 
 <!-- Header component -->
-<Header session={data.session as { user?: { name?: string; image?: string; email?: string } } | null | undefined} />
+<Header session={session as { user?: { name?: string; image?: string; email?: string } } | null | undefined} />
 
 <!-- Hero Section -->
 <section class="max-w-7xl mx-auto px-6 py-28 text-center flex flex-col items-center bg-gradient-to-b from-white to-zinc-50 rounded-lg">
@@ -20,7 +20,7 @@
 		A modern way to organize, manage, and share your files and assets across your team — with total control.
 	</p>
 
-	{#if !data.session}
+	{#if !session}
 		<Button
 			size="lg"
 			class="px-8 py-4 text-md shadow-md hover:shadow-lg transition"
@@ -30,7 +30,7 @@
 		</Button>
 	{:else}
 		<p class="text-md text-zinc-600 mb-4">
-			Welcome back, {data.session.user?.name}!
+			Welcome back, {session.user?.name}!
 		</p>
 		<Button
 			size="lg"

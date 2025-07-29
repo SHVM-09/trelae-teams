@@ -48,3 +48,12 @@ export const files = pgTable("files", {
   visibility: text("visibility").notNull().default("private"), // private | team | public
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const messages = pgTable('messages', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  room: text('room').notNull(),
+  userId: uuid('user_id'),
+  user: text('user').notNull(),
+  message: text('message').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});

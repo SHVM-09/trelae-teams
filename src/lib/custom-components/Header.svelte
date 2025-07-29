@@ -14,7 +14,7 @@
 	class="sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"
 >
 	<div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-		<a href="/" class="flex items-center gap-2">
+		<a href={session ? "/dashboard" : "/"} class="flex items-center gap-2">
 			<h1 class="text-2xl font-bold tracking-tight text-zinc-900">
 				Trelae<span class="text-zinc-600 ms-px text-3xl">Teams</span>
 			</h1>
