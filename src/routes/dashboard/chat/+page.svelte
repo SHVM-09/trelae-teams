@@ -3,7 +3,7 @@
   import { io } from 'socket.io-client';
   import ConfirmDeleteDialog from '../confirmDeleteDialog.svelte';
   import type { PageProps } from './$types';
-  import { Trash, Reply, Link2 } from 'lucide-svelte';
+  import { Trash, Reply, Link2, MessageSquare } from 'lucide-svelte';
 
   let { data }: PageProps = $props();
 
@@ -155,8 +155,8 @@
     const el = document.getElementById(`msg-${key}`);
     if (!el) return;
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    el.classList.add('ring-2', 'ring-blue-300', 'ring-offset-2');
-    setTimeout(() => el.classList.remove('ring-2', 'ring-blue-300', 'ring-offset-2'), 1400);
+    el.classList.add('ring-2', 'ring-indigo-300', 'ring-offset-2');
+    setTimeout(() => el.classList.remove('ring-2', 'ring-indigo-300', 'ring-offset-2'), 1400);
   }
 
   function onKeyDown(e: KeyboardEvent) {
@@ -204,10 +204,20 @@
   onConfirm={confirmRemove}
 />
 
-<section class="px-4 py-6 max-w-5xl mx-auto">
-  <!-- Header -->
-  <div class="mb-4 flex items-center justify-between">
-    <div class="text-xs uppercase font-medium text-zinc-500">Team Chat</div>
+<section class="max-w-5xl mx-auto px-6 py-12 relative">
+
+  <!-- ▸ page heading -->
+  <header class="space-y-2 mb-6 relative">
+    <h1 class="text-2xl font-extrabold tracking-tight text-indigo-500 flex items-center gap-2">
+      <MessageSquare class="inline-block align-middle" /> Team Chat
+    </h1>
+    <p class="text-xs text-zinc-600">
+      This is your team's persistent chat space — scoped to your current workspace and accessible by all members.
+      Messages are saved permanently and only <strong>admins</strong> can clear the entire chat history.
+    </p>
+  </header>
+
+  <div class="mb-4 flex items-center justify-end">
     <div class="flex items-center gap-2 text-xs text-zinc-500">
       <span class="size-2 rounded-full bg-green-500 inline-block"></span>
       <span>Connected</span>
@@ -215,25 +225,25 @@
   </div>
 
   <!-- Messages -->
-  <div class="chat-box h-[60vh] md:h-[65vh] lg:h-[70vh] overflow-y-auto rounded-2xl border bg-white shadow-sm p-4 md:p-6 space-y-3 md:space-y-4">
+  <div class="chat-box h-[65vh] overflow-y-auto rounded-2xl border border-zinc-200 shadow-md p-4 md:p-6 space-y-4 bg-indigo-200/50">
     {#each messages as msg (msg.id ?? msg.createdAt ?? Math.random())}
       {#key msg}
         <div class={`group flex ${isSelf(msg) ? 'justify-end' : 'justify-start'}`}>
           <div
             id={"msg-" + msgKey(msg)}
-            class={`relative inline-flex flex-col gap-1 rounded-2xl px-3.5 py-2.5 shadow-sm text-sm break-words min-w-[7rem] max-w-[80%]
-              ${isSelf(msg) ? 'bg-blue-600 text-white rounded-br-sm' : 'bg-zinc-100 text-zinc-800 rounded-bl-sm'}`}>
+            class={`relative inline-flex flex-col gap-1 rounded-2xl px-4 py-3 text-sm break-words min-w-[7rem] max-w-[80%]
+              ${isSelf(msg) ? 'bg-indigo-500 text-white rounded-br-sm shadow-md' : 'bg-zinc-100 text-zinc-800 rounded-bl-sm shadow'}`}>
 
             <!-- Hover actions -->
             <div class={`absolute -top-3 ${isSelf(msg) ? 'right-1' : 'left-1'} flex items-center gap-1 opacity-0 group-hover:opacity-100 transition`}>
               <button
-                class="h-6 w-6 flex items-center justify-center rounded-full bg-white/80 border hover:bg-white shadow {isSelf(msg) ? '!bg-blue-600 border-blue-600' : 'text-zinc-500'}"
+                class="h-6 w-6 flex items-center justify-center rounded-full bg-white/80 border hover:bg-white shadow {isSelf(msg) ? '!bg-indigo-500 border-indigo-500' : 'text-zinc-500'}"
                 title="Reply"
                 onclick={() => startReply(msg)}>
                 <Reply size={14} />
               </button>
               <button
-                class="h-6 w-6 flex items-center justify-center rounded-full bg-white/80 border hover:bg-white shadow {isSelf(msg) ? '!bg-blue-600 border-blue-600' : 'text-zinc-500'}"
+                class="h-6 w-6 flex items-center justify-center rounded-full bg-white/80 border hover:bg-white shadow {isSelf(msg) ? '!bg-indigo-500 border-indigo-500' : 'text-zinc-500'}"
                 title="Jump to message"
                 onclick={() => flashAndScrollToMessage(msgKey(msg))}>
                 <Link2 size={14} />
@@ -243,23 +253,21 @@
             <div class="font-medium text-[11px] opacity-80 select-none">
               {isSelf(msg) ? 'you' : (msg.user ?? 'Unknown')}
             </div>
+
             {#if hasReply(msg.message)}
               {@const parsed = parseReply(msg.message)}
-              <!-- reply badge -->
               <div class={`mb-2 inline-flex max-w-full items-start gap-1 rounded-xl p-2 text-[12px] italic
-                          ${isSelf(msg)
-                            ? 'bg-zinc-50 text-zinc-500'
-                            : 'bg-blue-50 text-blue-800 border border-blue-200'}`}>
+                          ${isSelf(msg) ? 'bg-zinc-50 text-zinc-500' : 'bg-indigo-50 text-indigo-800 border border-indigo-200'}`}>
                 <span class="shrink-0 text-black text-sm pr-2">↩︎</span>
                 <span class="truncate">{parsed.header}</span>
               </div>
-              <!-- body -->
               <div class="whitespace-pre-wrap leading-relaxed">{parsed.body}</div>
             {:else}
               <div class="whitespace-pre-wrap leading-relaxed">{msg.message}</div>
             {/if}
+
             {#if msg.createdAt}
-              <div class={`mt-0.5 text-[10px] ${isSelf(msg) ? 'text-blue-100/80' : 'text-zinc-500/80'}`}>
+              <div class={`mt-0.5 text-[10px] ${isSelf(msg) ? 'text-indigo-100/80' : 'text-zinc-500/80'}`}>
                 {new Date(msg.createdAt).toLocaleTimeString()}
               </div>
             {/if}
@@ -270,21 +278,17 @@
   </div>
 
   <!-- Composer -->
-  <form
-    class="mt-6 flex flex-col gap-2"
-    onsubmit={(e) => { e.preventDefault(); sendMessage(); }}>
-
-    <!-- Reply preview (only when replying) -->
+  <form class="mt-6 flex flex-col gap-2" onsubmit={(e) => { e.preventDefault(); sendMessage(); }}>
     {#if replyingTo}
-      <div class="flex items-center justify-between rounded-xl border bg-white px-3 py-2 text-xs text-zinc-700">
+      <div class="flex items-center justify-between rounded-xl border bg-white px-3 py-2 text-xs text-zinc-700 shadow">
         <div class="flex min-w-0 items-center gap-2">
-          <span class="inline-block rounded bg-blue-50 text-blue-700 px-2 py-0.5 text-[11px]">Replying to</span>
+          <span class="inline-block rounded bg-indigo-50 text-indigo-700 px-2 py-0.5 text-[11px]">Replying to</span>
           <span class="font-medium truncate">{replyingTo.user}</span>
           <span class="text-zinc-400">•</span>
           <span class="truncate italic text-zinc-500 max-w-[40ch]">“{replyingTo.snippet}”</span>
         </div>
         <div class="flex items-center gap-2">
-          <button type="button" class="text-blue-600 hover:underline" onclick={jumpToOriginal}>Jump</button>
+          <button type="button" class="text-indigo-500 hover:underline" onclick={jumpToOriginal}>Jump</button>
           <button type="button" class="text-zinc-500 hover:underline" onclick={() => replyingTo = null}>Cancel</button>
         </div>
       </div>
@@ -326,15 +330,14 @@
 
       <!-- Textarea -->
       <div class="flex-1">
-        <div class="h-12 flex items-center rounded-full border bg-white px-4 shadow-sm focus-within:ring-2 focus-within:ring-blue-200">
+        <div class="h-12 flex items-center rounded-full border bg-white px-4 shadow-sm focus-within:ring-2 focus-within:ring-indigo-200">
           <textarea
             bind:this={textareaEl}
             bind:value={input}
             rows="1"
             class="w-full resize-none text-sm outline-none placeholder:text-zinc-400 bg-transparent"
             placeholder="Type a message…"
-            onkeydown={onKeyDown}
-          ></textarea>
+            onkeydown={onKeyDown}></textarea>
         </div>
       </div>
 
@@ -348,10 +351,9 @@
         </button>
       {/if}
 
-      <!-- Send -->
       <button
         type="submit"
-        class="h-12 px-5 shrink-0 rounded-full bg-blue-600 text-white text-sm font-medium shadow-sm hover:bg-blue-700 transition">
+        class="h-12 px-5 shrink-0 rounded-full bg-indigo-500 text-white text-sm font-medium shadow hover:bg-indigo-700 transition">
         Send
       </button>
     </div>

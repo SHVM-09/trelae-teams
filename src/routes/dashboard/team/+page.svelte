@@ -100,7 +100,7 @@
 </script>
 
 <!-- ═════════════════ MAIN PAGE ═════════════════ -->
-<div class="max-w-4xl mx-auto py-12 space-y-12 px-8">
+<div class="max-w-5xl mx-auto py-12 space-y-12 px-8">
 
   <!-- ▸ page heading -->
   <header class="space-y-2 relative">

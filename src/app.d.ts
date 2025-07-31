@@ -23,6 +23,7 @@ declare global {
                 namespaceId?: string;
                 teamNamespaceId?: string;
                 publicNamespaceId?: string;
+                plan?: string;
             };
         }
     }

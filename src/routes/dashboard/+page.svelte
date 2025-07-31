@@ -3,14 +3,14 @@
   import { Button } from "$lib/components/ui/button";
   import { toast } from 'svelte-sonner';
   import {
-    LogOut,
     Users,
     Folder,
     ShieldCheck,
-    Link,
+    Globe,
     UploadCloud,
     CreditCard,
-    Trash
+    Trash,
+    LayoutDashboard
   } from "lucide-svelte";
   import {
 		Avatar,
@@ -19,6 +19,7 @@
 	} from "$lib/components/ui/avatar"
   import type { PageProps } from "./$types";
   import ConfirmDeleteDialog from './confirmDeleteDialog.svelte';
+    import {goto} from "$app/navigation";
 
   interface Member {
     id: string;
@@ -149,120 +150,214 @@
       toast.error('Failed to delete invite');
     }
   }
+
+  let confirmPlanOpen = $state(false);
+  let deletingPlan    = $state(false);
+
+  async function confirmDeletePlan() {
+    deletingPlan = true;
+    try {
+      const res = await fetch('/api/plan', { method: 'DELETE' });
+      if (!res.ok) throw new Error(await res.text());
+      toast.success('Plan deleted – your workspace is now free tier.');
+      // optional: sign-out or redirect after deletion
+      goto('/', { replaceState: true });
+    } catch (e) {
+      toast.error('Failed to delete plan');
+    } finally {
+      deletingPlan   = false;
+      confirmPlanOpen = false;
+    }
+  }
+
+  let confirmLeaveOpen = $state(false);
+  let leavingTeam      = $state(false);
+
+  async function confirmLeaveTeam() {
+    leavingTeam = true;
+    try {
+      const res = await fetch("/api/team/leave", { method: "POST" });
+      if (!res.ok) throw new Error(await res.text());
+      toast.success("You’ve left the team");
+      goto("/", { replaceState: true });
+    } catch {
+      toast.error("Unable to leave team");
+    } finally {
+      leavingTeam   = false;
+      confirmLeaveOpen = false;
+    }
+  }
 </script>
 
-<div class="max-w-6xl mx-auto px-6 py-12 space-y-6">
+<div class="max-w-5xl mx-auto px-6 py-12 space-y-6 relative">
+
+  <!-- ▸ page heading -->
+  <header class="space-y-2 relative">
+    <h1 class="text-2xl font-extrabold tracking-tight text-fuchsia-500 flex items-center gap-2">
+      <LayoutDashboard class="inline-block align-middle" /> Dashboard
+    </h1>
+    <p class="text-xs text-zinc-600">
+      Your central hub — get an overview of your activity, manage your personal and team files, and access all key tools from a single, streamlined space.
+    </p>
+  </header>
+
   <!-- Welcome -->
-  <section class="rounded-xl bg-gradient-to-br from-white to-zinc-50 p-8 border border-zinc-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
-    <div class="flex items-center gap-4">
-      <Avatar class="shrink-0 size-28 rounded-lg">
-					<AvatarImage src={user?.image ?? "https://placehold.co/600x400"} alt={user?.name ?? "User"} />
-					<AvatarFallback class="text-3xl">{user?.name?.[0] ?? "U"}</AvatarFallback>
-			</Avatar>
+  <section
+    class="rounded-2xl border border-zinc-200 bg-gradient-to-br from-white to-zinc-50 p-6 sm:p-8 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6"
+  >
+    <!-- avatar & user info -->
+    <div class="flex items-center gap-5">
+      <Avatar class="size-20 sm:size-24 md:size-28 rounded-full ring-1 ring-zinc-200 shadow-sm shrink-0">
+        <AvatarImage
+          src={user?.image ?? "https://placehold.co/600x400"}
+          alt={user?.name ?? "User"}
+          class="object-cover"
+        />
+        <AvatarFallback class="text-2xl sm:text-3xl">{user?.name?.[0] ?? "U"}</AvatarFallback>
+      </Avatar>
+
       <div>
-        <h1 class="text-3xl font-bold text-zinc-900">
-          {user?.name ?? "user"}
+        <h1 class="text-xl sm:text-2xl font-medium tracking-tight text-zinc-900">
+          {user?.name ?? "User"}
         </h1>
-        <p class="text-sm text-zinc-500">{user?.email}</p>
+        <p class="text-xs text-zinc-500 truncate max-w-[220px] sm:max-w-xs">{user?.email}</p>
         {#if user?.role}
           <span
-            class={`inline-block mt-2 rounded px-3 py-0.5 text-sm font-medium ${
+            class={`inline-block mt-2 rounded-full px-3 py-1 text-xs font-medium capitalize ${
               user.role.trim() === "admin"
-                ? 'bg-blue-100 text-blue-800'
-                : 'bg-green-100 text-green-800'
+                ? "bg-blue-100 text-blue-800"
+                : "bg-green-100 text-green-800"
             }`}
           >
             {user.role.trim()}
           </span>
         {/if}
+        <span
+          class={`rounded-full capitalize inline-flex items-center text-xs font-medium px-3 py-1
+            ${data.session?.user?.plan === 'pro'
+              ? 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white'
+              : data.session?.user?.plan === 'enterprise'
+              ? 'bg-gradient-to-br from-yellow-400 to-amber-500 text-white'
+              : data.session?.user?.plan === 'basic'
+              ? 'bg-gradient-to-br from-green-400 to-emerald-500 text-white'
+              : 'bg-gradient-to-br from-zinc-200 to-zinc-300 text-zinc-700'}
+          `}
+        >
+          {data.session?.user?.plan || 'free'}
+        </span>
       </div>
     </div>
-    <Button
-      variant="outline"
-      size="sm"
-      class="gap-2 flex items-center self-end"
-      onclick={signOut}
-    >
-      <LogOut class="w-4 h-4" /> Sign Out
-    </Button>
+
+    <!-- sign out -->
+    <div class="flex flex-col gap-4">
+      <div class="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-fuchsia-500 p-[1px]" >
+        <button
+          onclick={() => signOut()}
+          class="rounded-full w-full bg-white text-sm font-medium px-4 py-2 hover:bg-zinc-50 transition-colors"
+        >
+          <span class="bg-gradient-to-br from-purple-500 via-pink-500 to-fuchsia-500 bg-clip-text text-transparent">
+            Sign out
+          </span>
+        </button>
+      </div>
+
+      {#if user?.teamId}
+        {#if user?.role === 'admin'}
+          <!-- Delete Team (admin) -->
+          <div class="inline-flex items-center justify-center rounded-full bg-gradient-to-br from-red-500 via-rose-500 to-orange-500 p-[1px]">
+            <button
+              class="rounded-full w-full bg-white text-sm font-medium px-4 py-2 hover:bg-zinc-50 transition-colors text-red-600"
+              onclick={() => confirmPlanOpen = true}>
+              Delete Team
+            </button>
+          </div>
+        {:else}
+          <!-- Leave Team (member) ─── NEW -->
+          <div class="inline-flex items-center justify-center rounded-full bg-gradient-to-br from-red-500 via-rose-500 to-orange-500 p-[1px]">
+            <button
+              class="rounded-full w-full bg-white text-sm font-medium px-4 py-2 hover:bg-zinc-50 transition-colors text-red-600"
+              onclick={() => confirmLeaveOpen = true}>
+              Leave Team
+            </button>
+          </div>
+        {/if}
+      {/if}
+    </div>
   </section>
 
   <!-- Quick Actions -->
-  <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     {#if user?.teamId && user?.role?.trim() !== "member"}
       <!-- Invite -->
-      <a href="/dashboard/team/invite" class="flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 hover:shadow-md transition group">
+      <a href="/dashboard/team/invite" class="group flex flex-col justify-between rounded-xl border border-zinc-200 bg-white p-6 shadow-sm hover:shadow-md transition">
         <div class="flex items-center justify-between mb-4">
-          <Users class="w-6 h-6 text-blue-600 group-hover:scale-110 transition" />
-          <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">Team</span>
+          <Users class="w-6 h-6 text-blue-600 group-hover:scale-110 transition-transform" />
+          <span class="text-xs rounded-full bg-blue-50 text-blue-600 px-2 py-0.5">Team</span>
         </div>
-        <h3 class="text-lg font-semibold text-zinc-900 mb-1">Invite Members</h3>
+        <h3 class="text-base font-semibold text-zinc-900 mb-1">Invite Members</h3>
         <p class="text-sm text-zinc-600">Send invite links and grow your workspace.</p>
       </a>
     {/if}
 
-    <!-- My Files (always visible) -->
-    <a href="/dashboard/my-files" class="flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 hover:shadow-md transition group h-fit">
+    <!-- My Files -->
+    <a href="/dashboard/my-files" class="group flex flex-col justify-between rounded-xl border border-zinc-200 bg-white p-6 shadow-sm hover:shadow-md transition h-fit">
       <div class="flex items-center justify-between mb-4">
-        <Folder class="w-6 h-6 text-green-600 group-hover:scale-110 transition" />
-        <span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">Private</span>
+        <Folder class="w-6 h-6 text-green-600 group-hover:scale-110 transition-transform" />
+        <span class="text-xs rounded-full bg-green-50 text-green-600 px-2 py-0.5">Private</span>
       </div>
-      <h3 class="text-lg font-semibold text-zinc-900 mb-1">My Files</h3>
+      <h3 class="text-base font-semibold text-zinc-900 mb-1">My Files</h3>
       <p class="text-sm text-zinc-600">Upload, organize & manage your files securely.</p>
     </a>
 
     {#if user?.teamId}
       <!-- Team Files -->
-      <a href="/dashboard/team-files" class="flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 hover:shadow-md transition group">
+      <a href="/dashboard/team-files" class="group flex flex-col justify-between rounded-xl border border-zinc-200 bg-white p-6 shadow-sm hover:shadow-md transition">
         <div class="flex items-center justify-between mb-4">
-          <ShieldCheck class="w-6 h-6 text-purple-600 group-hover:scale-110 transition" />
-          <span class="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full">Shared</span>
+          <Folder class="w-6 h-6 text-purple-600 group-hover:scale-110 transition-transform" />
+          <span class="text-xs rounded-full bg-purple-50 text-purple-600 px-2 py-0.5">Shared</span>
         </div>
-        <h3 class="text-lg font-semibold text-zinc-900 mb-1">Team Files</h3>
+        <h3 class="text-base font-semibold text-zinc-900 mb-1">Team Files</h3>
         <p class="text-sm text-zinc-600">Access & collaborate on team-level files.</p>
       </a>
 
-      <!-- Public Files (always visible) -->
-      <a href="/public-files" class="flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 hover:shadow-md transition group max-h-fit">
+      <!-- Public Files -->
+      <a href="/public-files" class="group flex flex-col justify-between rounded-xl border border-zinc-200 bg-white p-6 shadow-sm hover:shadow-md transition max-h-fit">
         <div class="flex items-center justify-between mb-4">
-          <Link class="w-6 h-6 text-amber-600 group-hover:scale-110 transition" />
-          <span class="text-xs bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full">Public</span>
+          <Globe class="w-6 h-6 text-amber-600 group-hover:scale-110 transition-transform" />
+          <span class="text-xs rounded-full bg-amber-50 text-amber-600 px-2 py-0.5">Public</span>
         </div>
-        <h3 class="text-lg font-semibold text-zinc-900 mb-1">Public Files</h3>
+        <h3 class="text-base font-semibold text-zinc-900 mb-1">Public Files</h3>
         <p class="text-sm text-zinc-600">Browse files shared publicly by your team.</p>
       </a>
     {:else}
-      <!-- Join and create teams -> go to dashboard/checkout -->
-      <a href="/dashboard/checkout" class="flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 hover:shadow-md transition group">
+      <!-- Upgrade -->
+      <a href="/dashboard/checkout" class="group flex flex-col justify-between rounded-xl border border-zinc-200 bg-white p-6 shadow-sm hover:shadow-md transition">
         <div class="flex items-center justify-between mb-4">
-          <CreditCard class="w-6 h-6 text-yellow-600 group-hover:scale-110 transition" />
-          <span class="text-xs bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded-full">Upgrade</span>
+          <CreditCard class="w-6 h-6 text-yellow-600 group-hover:scale-110 transition-transform" />
+          <span class="text-xs rounded-full bg-yellow-50 text-yellow-600 px-2 py-0.5">Upgrade</span>
         </div>
-        <h3 class="text-lg font-semibold text-zinc-900 mb-1">Upgrade to Teams</h3>
+        <h3 class="text-base font-semibold text-zinc-900 mb-1">Upgrade to Teams</h3>
         <p class="text-sm text-zinc-600">Create teams for collaboration.</p>
       </a>
     {/if}
 
-    <!-- Upload CTA (always visible) -->
+    <!-- Upload CTA -->
     <div
-      class="flex flex-col justify-between rounded-xl border border-dashed border-zinc-300 p-6 hover:bg-zinc-50 transition group md:col-span-2 cursor-pointer shadow-sm"
+      class="group flex flex-col justify-between rounded-xl border border-dashed border-zinc-300 p-6 hover:bg-zinc-50 transition cursor-pointer shadow-sm md:col-span-2"
       onclick={openFilePicker}
       role="presentation"
     >
       <div class="flex items-center justify-between mb-6">
-        <UploadCloud class="w-6 h-6 text-zinc-500 group-hover:text-zinc-700 group-hover:scale-110 transition" />
+        <UploadCloud class="w-6 h-6 text-zinc-500 group-hover:text-zinc-700 group-hover:scale-110 transition-transform" />
         <span class="text-xs bg-zinc-200 text-zinc-700 px-2 py-0.5 rounded-full">Quick</span>
       </div>
 
       <div class="flex-1">
-        <h3 class="text-xl font-semibold text-zinc-900 mb-2">Upload New File</h3>
-        <p class="text-sm text-zinc-600 mb-6">
-          Click to add new files to My Files instantly.
-        </p>
+        <h3 class="text-lg font-semibold text-zinc-900 mb-2">Upload New File</h3>
+        <p class="text-sm text-zinc-600 mb-6">Click to add new files to My Files instantly.</p>
       </div>
 
       <div class="flex-1 flex items-center justify-end gap-4">
-
         {#if selectedFile}
           <div class="flex-1 items-center rounded-md bg-zinc-100 px-4 py-2 text-sm text-zinc-700 font-medium border truncate">
             {selectedFile.name}
@@ -272,7 +367,7 @@
         <Button
           class="w-fit"
           disabled={uploading || !selectedFile}
-          onclick={(e)=> {
+          onclick={(e) => {
             e.stopPropagation();
             quickUpload();
           }}
@@ -283,7 +378,6 @@
               ? 'Upload File'
               : 'Choose File'}
         </Button>
-
       </div>
 
       <!-- Hidden input -->
@@ -307,11 +401,11 @@
           <h3 class="text-lg font-semibold text-zinc-900">Members</h3>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto -mx-6">
           <table class="min-w-full text-sm">
             <thead class="border-b">
               <tr>
-                <th class="px-4 py-2 text-left font-medium text-zinc-600">Name</th>
+                <th class="px-4 ps-6 py-2 text-left font-medium text-zinc-600">Name</th>
                 <th class="px-4 py-2 text-left font-medium text-zinc-600">Email</th>
                 <th class="px-4 py-2 text-left font-medium text-zinc-600">Role</th>
                 <th class="px-4 py-2 text-right"></th>
@@ -321,7 +415,7 @@
             <tbody>
               {#each members as member}
                 <tr class="border-b hover:bg-zinc-50 transition last:border-b-0">
-                  <td class="px-4 py-3 font-medium text-zinc-900">{member.name}</td>
+                  <td class="px-4 ps-6 py-3 font-medium text-zinc-900">{member.name}</td>
                   <td class="px-4 py-3 text-zinc-600">{member.email}</td>
                   <td class="px-4 py-3">
                     <span class={`inline-block rounded px-2 py-0.5 text-xs ${
@@ -364,11 +458,11 @@
           <h3 class="text-lg font-semibold text-zinc-900">Members</h3>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto -mx-6">
           <table class="min-w-full text-sm">
             <thead class="border-b">
               <tr>
-                <th class="px-4 py-2 text-left font-medium text-zinc-600">Name</th>
+                <th class="px-4 ps-6 py-2 text-left font-medium text-zinc-600">Name</th>
                 <th class="px-4 py-2 text-left font-medium text-zinc-600">Email</th>
                 <th class="px-4 py-2 text-left font-medium text-zinc-600">Role</th>
                 <th class="px-4 py-2 text-right"></th>
@@ -384,69 +478,116 @@
         </div>
       </section>
     {/if}
-    {#if invites.length}
-      <section class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm max-w-lg">
-        <div class="flex items-center gap-3 mb-4">
-          <Users class="w-5 h-5 text-indigo-600" />
-          <h3 class="text-lg font-semibold text-zinc-900">Invites</h3>
-        </div>
 
-        <div class="overflow-x-auto">
-          <table class="min-w-full text-sm">
-            <thead class="border-b">
-              <tr>
-                <th class="px-4 py-2 text-left font-medium text-zinc-600">Email</th>
-                <th class="px-4 py-2 text-left font-medium text-zinc-600">Sent At</th>
-                <th class="px-4 py-2 text-right"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {#each invites as invite}
-                <tr class="border-b hover:bg-zinc-50 transition last:border-b-0">
-                  <td class="px-4 py-3 font-medium text-zinc-900">{invite.email}</td>
-                  <td class="px-4 py-3 text-zinc-600">{invite.createdAt ? new Date(invite.createdAt).toLocaleDateString() : ''}</td>
-                  <td class="px-4 py-3 text-right">
-                    {#if user?.role === 'admin'}
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        class="size-6"
-                        onclick={() => deleteInvite(invite.id)}
-                      >
-                        <Trash class="size-3.5" />
-                      </Button>
-                    {/if}
-                  </td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    {:else}
-      <section class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm max-w-lg">
-        <div class="flex items-center gap-3 mb-4">
-          <Users class="w-5 h-5 text-zinc-500" />
-          <h3 class="text-lg font-semibold text-zinc-900">Invites</h3>
-        </div>
+    {#if user?.role === 'admin'}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {#if invites.length}
+          <section class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <div class="flex items-center gap-3 mb-4">
+              <Users class="w-5 h-5 text-indigo-600" />
+              <h3 class="text-lg font-semibold text-zinc-900">Invites</h3>
+            </div>
 
-        <div class="overflow-x-auto">
-          <table class="min-w-full text-sm">
-            <thead class="border-b">
-              <tr>
-                <th class="px-4 py-2 text-left font-medium text-zinc-600">Email</th>
-                <th class="px-4 py-2 text-left font-medium text-zinc-600">Sent At</th>
-                <th class="px-4 py-2 text-right"></th>
-              </tr>
-            </thead>
-            <tbody>
-                <tr class="border-b hover:bg-zinc-50 transition last:border-b-0">
-                  <td colspan="3" class="px-4 py-3 text-center">No pending invites</td>
-                </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+            <div class="overflow-x-auto -mx-6">
+              <table class="min-w-full text-sm">
+                <thead class="border-b">
+                  <tr>
+                    <th class="px-4 ps-6 py-2 text-left font-medium text-zinc-600">Email</th>
+                    <th class="px-4 py-2 text-left font-medium text-zinc-600">Sent&nbsp;At</th>
+                    <th class="px-4 py-2 text-right"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {#each invites as invite}
+                    <tr class="border-b hover:bg-zinc-50 transition last:border-b-0">
+                      <td class="px-4 ps-6 py-3 font-medium text-zinc-900">
+                        {invite.email}
+                      </td>
+                      <td class="px-4 py-3 text-zinc-600 text-nowrap">
+                        {invite.createdAt
+                          ? new Date(invite.createdAt).toLocaleString(undefined, {
+                              dateStyle: 'medium',
+                              timeStyle: 'short'
+                            })
+                          : ''}
+                      </td>
+                      <td class="px-4 py-3 text-right">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          class="size-6"
+                          onclick={() => deleteInvite(invite.id)}
+                        >
+                          <Trash class="size-3.5" />
+                        </Button>
+                      </td>
+                    </tr>
+                  {/each}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        {:else}
+          <section class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <div class="flex items-center gap-3 mb-4">
+              <Users class="w-5 h-5 text-zinc-500" />
+              <h3 class="text-lg font-semibold text-zinc-900">Invites</h3>
+            </div>
+
+            <p class="text-sm text-zinc-500 text-center">No pending invites</p>
+          </section>
+        {/if}
+
+        <section class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm space-y-6 h-fit">
+          <div class="flex items-center gap-3">
+            <ShieldCheck class="w-5 h-5 text-indigo-600" />
+            <h3 class="text-lg font-semibold text-zinc-900">
+              Share Public-Files Access
+            </h3>
+          </div>
+
+          <form
+            onsubmit={async (e) => {
+              e.preventDefault();
+              const form     = e.currentTarget as HTMLFormElement;
+              const formData = new FormData(form);
+              const email    = formData.get('email')?.toString().trim();
+
+              if (!email) {
+                toast.error('Please enter an email address.');
+                return;
+              }
+
+              const res = await fetch('/api/public-share', {
+                method : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body   : JSON.stringify({ email })
+              });
+
+              if (res.ok) {
+                toast.success('Public-files credentials sent.');
+                form.reset();
+              } else {
+                toast.error(await res.text() || 'Failed to send email.');
+              }
+            }}
+            class="flex items-center gap-4"
+          >
+            <input
+              type="email"
+              name="email"
+              placeholder="recipient@example.com"
+              class="w-full flex-1 rounded-md border border-zinc-300 px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <Button type="submit" class="whitespace-nowrap">Send</Button>
+          </form>
+
+          <p class="text-xs text-zinc-500 -mt-2">
+            The recipient will receive your <strong>Team&nbsp;ID</strong> and
+            public-files password so they can unlock your team’s public files.
+          </p>
+        </section>
+      </div>
     {/if}
   {/if}
 </div>
@@ -458,4 +599,24 @@
 	confirmLabel="Remove"
 	destructive={true}
 	onConfirm={confirmRemove}
+/>
+
+<!-- Confirm delete *team plan* – admin only -->
+<ConfirmDeleteDialog
+  bind:open       ={confirmPlanOpen}
+  title           ="Delete Team Plan?"
+  descriptionHTML ="This will permanently delete the <strong>team, team & public files, chat</strong>. All members will be downgraded to the free tier. This action cannot be undone."
+  confirmLabel    ={deletingPlan ? 'Deleting…' : 'Delete Plan'}
+  destructive     ={true}
+  onConfirm       ={confirmDeletePlan}
+/>
+
+<!-- Leave Team dialog (member) ─── NEW -->
+<ConfirmDeleteDialog
+  bind:open         ={confirmLeaveOpen}
+  title             ="Leave Team?"
+  descriptionHTML   ="You’ll be removed from the team. You can re-join later If admin invites you again."
+  confirmLabel      ={leavingTeam ? "Leaving…" : "Leave Team"}
+  destructive       ={true}
+  onConfirm         ={confirmLeaveTeam}
 />

@@ -18,7 +18,9 @@
     Table,
     MoreVertical,
     Download,
-    RefreshCw
+    RefreshCw,
+    ExternalLink,
+    Globe
   } from 'lucide-svelte';
 
   const { data } = $props();
@@ -133,19 +135,21 @@
   }
 
   function toggleSelectAll() {
+    if (!canEdit) return; 
     const ids = publicFiles.map(f => f.id);
     if (allSelected) { selectedIds = []; } else { selectedIds = ids; }
     allSelected = !allSelected;
   }
 
   function toggleSelect(id: string) {
+    if (!canEdit) return; 
     selectedIds = selectedIds.includes(id) ? selectedIds.filter(x => x !== id) : [...selectedIds, id];
     allSelected = publicFiles.length > 0 && publicFiles.every(f => selectedIds.includes(f.id));
   }
 
   	function handleGridClick(f:FileRec){
       // single-click selects / deselects
-      toggleSelect(f.id);
+      if (canEdit) toggleSelect(f.id);
     }
     function openFileOrFolder(f:FileRec){
       // double-click (or explicit icon) opens
@@ -258,9 +262,19 @@
 	<!-- Radial gradient background -->
 	<div class="absolute top-[2%] left-1/2 -translate-x-1/2 w-[80vw] h-[50vh] bg-[radial-gradient(ellipse_at_center,_rgba(220,100,245,0.4),_transparent_70%)] z-0"></div>
 
+  	<!-- ▸ page heading -->
+    <header class="space-y-2 relative max-w-5xl mx-auto py-12 px-6">
+      <h1 class="text-2xl font-extrabold tracking-tight text-orange-500 flex items-center gap-2">
+      <Globe class="inline-block align-middle" /> Public Files
+      </h1>
+      <p class="text-xs text-zinc-600">
+        This is public file storage for teams. You can view, download, and share files here to collaborate with others. Non Team members can access these files if they have the Team ID and access password.
+      </p>
+    </header>
+
   {#if !accessGranted}
     <div
-      class="max-w-lg mx-auto mt-28 p-8 rounded-2xl border border-zinc-200 shadow-xl backdrop-blur bg-white/80 z-10 relative overflow-hidden"
+      class="max-w-xl mx-auto mt-8 p-8 rounded-2xl border border-zinc-200 shadow-xl backdrop-blur bg-white/80 z-10 relative overflow-hidden"
     >
       <div
         class="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-gradient-to-br from-pink-300 via-purple-300 to-blue-300 opacity-30 blur-2xl"
@@ -269,11 +283,12 @@
 
       <div class="relative space-y-3 text-center">
         <h2 class="text-3xl font-bold tracking-tight text-zinc-900">
-          Access Public Files
+          Access Files
         </h2>
-        <p class="text-sm leading-relaxed text-zinc-600 text-pretty">
-          These files are shared by a team using <span class="font-semibold text-zinc-800">Trelae</span>.
+        <p class="text-xs leading-relaxed text-zinc-600 text-pretty">
+          These files are shared by a team.
           To view or download them, please enter the Team ID and access password provided to you.
+          Ask the team owner for these details if you don't have them.
         </p>
       </div>
 
@@ -303,20 +318,21 @@
             />
         </div>
       </div>
-
-      <Button
-        class="w-full py-3 h-10 text-sm rounded-lg font-medium shadow-sm hover:shadow transition mt-8"
-        onclick={requestAccess}
-      >
-        Unlock Files
-      </Button>
+      <div class="mt-10 flex items-center justify-center">
+        <Button
+          class="w-xs py-3 h-10 text-sm rounded-lg font-medium shadow-sm hover:shadow transition"
+          onclick={requestAccess}
+        >
+          Unlock Files
+        </Button>
+      </div>
     </div>
   {:else}
-    <div class="relative z-10 max-w-6xl mx-auto px-6 pt-8 pb-4 space-y-12">
-      <section class="rounded-xl border border-zinc-200 bg-white shadow-sm h-[calc(100vh-12rem)] overflow-y-auto relative">
+    <div class="relative z-10 max-w-5xl mx-auto px-6 pb-4 space-y-12">
+      <section class="rounded-xl border border-zinc-200 bg-white shadow-sm h-[calc(100vh-24rem)] overflow-y-auto relative">
         <div class="sticky top-0 z-10 bg-zinc-50/90 backdrop-blur border-b border-zinc-200">
           <div
-            class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between
+            class="flex {canEdit ? 'flex-col' : 'flex-row justify-between'} gap-4 md:flex-row md:items-center md:justify-between
                   px-4 md:px-6 py-4"
           >
             <!-- ▸ breadcrumb / back button -->
@@ -427,14 +443,14 @@
         </div>
 
         {#if !isGridView}
-          <div class="overflow-x-auto">
+          <div class="overflow-x-auto h-[84%]">
             <table class="min-w-full text-sm">
               <thead class="border-b">
                 <tr>
                   <th class="w-10 px-4 py-2">
                     {#if canEdit}<input type="checkbox" class="size-4" checked={allSelected} onchange={toggleSelectAll}/>{/if}
                   </th>
-                  <th class="w-52 px-4 py-2 text-left relative">
+                  <th class="w-52 px-4 py-2 text-left relative font-medium">
                     {#if canEdit && selectedIds.length}
                       <Button size="sm" variant="secondary" class="absolute top-1 h-6 text-xs w-32"
                               onclick={askBulkDelete}>Delete selected ({selectedIds.length})</Button>
@@ -468,13 +484,13 @@
                       </td>
                       <td class="px-4 py-3 text-zinc-600">{file.location?`/${file.location}`:'/'}</td>
                       <td class="px-4 py-3 text-zinc-600">{file.type}</td>
-                      <td class="px-4 py-3 text-zinc-600">{file.type==='folder'?'-':`${(Number(file.size)/1024).toFixed(2)} KB`}</td>
+                      <td class="px-4 py-3 text-zinc-600 text-nowrap">{file.type==='folder'?'-':`${(Number(file.size)/1024).toFixed(2)} KB`}</td>
                       <td class="px-4 py-3">
                         <span class="inline-block rounded px-2 py-0.5 text-xs {file.status==='pending'?'bg-yellow-100 text-yellow-800':file.status==='uploaded'?'bg-green-100 text-green-800':'bg-red-100 text-red-800'}">
                           {file.status}
                         </span>
                       </td>
-                      <td class="px-4 py-3 text-zinc-600">
+                      <td class="px-4 py-3 text-zinc-600 text-nowrap">
                         {file.createdAt
                           ? new Date(file.createdAt).toLocaleDateString('en-US', {
                               year: 'numeric',
@@ -504,7 +520,7 @@
             </table>
           </div>
         {:else}
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-4 pt-14 relative">
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-4 {canEdit ? 'pt-14' : 'pt-4'} relative">
             {#if publicFiles.length}
               {#each publicFiles as file (file.id)}
                 <!-- single card -->
@@ -513,7 +529,6 @@
                         hover:shadow-lg hover:border-zinc-300 min-h-44
                         {selectedIds.includes(file.id) ? 'ring-2 ring-blue-500 !bg-blue-50/60' : ''}"
                   onclick={() => handleGridClick(file)}
-                  ondblclick={() => openFileOrFolder(file)}
                   role="presentation"
                 >
                   <!-- colourful icon tile -->
@@ -548,7 +563,7 @@
                       </DropdownMenu.Trigger>
 
                       <DropdownMenu.Content
-                        class="min-w-32 rounded-md border border-zinc-200 bg-white p-1 shadow-lg text-sm z-20"
+                        class="min-w-32 rounded-md border border-zinc-200 bg-white p-1 shadow-lg text-xs z-20"
                         align="end"
                       >
                         {#if file.type === 'file'}
@@ -557,6 +572,10 @@
                             <DropdownMenu.Item onclick={(e) => {e.stopPropagation(); copyFile(file)}}       class="flex items-center gap-2 rounded px-2 py-1 hover:bg-zinc-100"><Copy size="14" />Copy</DropdownMenu.Item>
                             <DropdownMenu.Item onclick={(e) => {e.stopPropagation(); moveFile(file)}}       class="flex items-center gap-2 rounded px-2 py-1 hover:bg-zinc-100"><Move size="14" />Move</DropdownMenu.Item>
                           {/if}
+                        {:else}
+                          <DropdownMenu.Item onclick={(e) => { e.stopPropagation(); openFileOrFolder(file); }} class="flex items-center gap-2 rounded px-2 py-1 hover:bg-zinc-100">
+                            <ExternalLink class="size-4" />Open
+                          </DropdownMenu.Item>
                         {/if}
                         {#if canEdit}
                           <DropdownMenu.Item onclick={(e) => {e.stopPropagation(); askDelete(file)}} class="flex items-center gap-2 rounded px-2 py-1 text-red-600 hover:bg-red-600/10"><Trash size="14" />Delete</DropdownMenu.Item>
@@ -568,7 +587,7 @@
               {/each}
 
               <!-- bulk-delete floating chip -->
-              {#if selectedIds.length}
+              {#if canEdit && selectedIds.length}
                 <div class="absolute top-2 right-4">
                   <Button size="sm" variant="secondary" onclick={askBulkDelete}>Delete&nbsp;Selected&nbsp;({selectedIds.length})</Button>
                 </div>
@@ -586,14 +605,13 @@
 
     {#if showTip}
       <div
-        class="relative flex items-start gap-2 px-4 md:px-6 py-3 bg-blue-50
+        class="relative flex items-start gap-2 px-6 py-3 bg-blue-50
               text-blue-700 text-xs font-light border border-blue-200/60
-              mx-auto max-w-5xl z-10 rounded-lg"
+              mx-6 lg:mx-auto max-w-4xl z-10 rounded-lg"
       >
         <p class="leading-snug pr-8">
-          Double-click a folder to open it (or a file to preview).  
-          Use the dark / light buttons to toggle list ↔ grid view, and use the
-          three-dot menu (<span class="font-mono">⋮</span>) on each item to download.
+          Click the <code class="font-mono bg-blue-200/50 p-1 rounded">⋮</code> menu on each item to open folders or download file.  
+          Use the view toggle to switch between list and grid views.
         </p>
 
         <!-- dismiss button -->
@@ -608,5 +626,10 @@
       </div>
     {/if}
   {/if}
+
+  	<!-- ─── Footer ─── -->
+    <footer class="relative z-10 py-6 text-center text-xs text-zinc-500 bg-white/10 mt-24">
+      © {new Date().getFullYear()} Teams. Your Files. Perfected.
+    </footer>
 
 </div>

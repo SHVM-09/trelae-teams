@@ -70,11 +70,11 @@ export const handle = SvelteKitAuth({
 
 			if (dbUser && session.user) {
 				session.user.id = dbUser.id;
-        		// @ts-expect-error
+				// @ts-expect-error
 				session.user.role = dbUser.role;
-        		// @ts-expect-error
+				// @ts-expect-error
 				session.user.teamId = dbUser.teamId;
-        		// @ts-expect-error
+				// @ts-expect-error
 				session.user.avatarUrl = dbUser.avatarUrl;
 				session.user.name = dbUser.name;
 				// @ts-expect-error
@@ -83,7 +83,19 @@ export const handle = SvelteKitAuth({
 				session.user.teamNamespaceId = dbUser.teamNamespaceId;
 				// @ts-expect-error
 				session.user.publicNamespaceId = dbUser.publicNamespaceId;
-				// createdAt is optional for frontend — you can include if needed
+
+				// Fetch and attach team plan
+				if (dbUser.teamId) {
+					const team = await db.query.teams.findFirst({
+						where: (t, { eq }) => eq(t.id, dbUser.teamId as string),
+						columns: { plan: true }
+					});
+
+					if (team?.plan) {
+						// @ts-expect-error
+						session.user.plan = team.plan;
+					}
+				}
 			}
 
 			return session;

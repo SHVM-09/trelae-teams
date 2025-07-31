@@ -20,18 +20,35 @@
 
 		<!-- Brand -->
 		<div class="px-6 py-4 border-b border-zinc-200 flex items-center justify-between bg-white">
-			<a href="/dashboard" class="select-none text-2xl font-extrabold tracking-tight
-			                           bg-gradient-to-br from-pink-500 via-purple-500 to-fuchsia-500
-			                           bg-clip-text text-transparent">
+			<a
+				href="/dashboard"
+				class="select-none text-2xl font-extrabold tracking-tight
+					bg-gradient-to-br from-pink-500 via-purple-500 to-fuchsia-500
+					bg-clip-text text-transparent"
+			>
 				Teams
 			</a>
+
+			<span
+				class={`rounded-full capitalize inline-flex items-center text-xs font-medium px-3 py-1
+					${data.session?.user?.plan === 'pro'
+						? 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white'
+						: data.session?.user?.plan === 'enterprise'
+						? 'bg-gradient-to-br from-yellow-400 to-amber-500 text-white'
+						: data.session?.user?.plan === 'basic'
+						? 'bg-gradient-to-br from-green-400 to-emerald-500 text-white'
+						: 'bg-gradient-to-br from-zinc-200 to-zinc-300 text-zinc-700'}
+				`}
+			>
+				{data.session?.user?.plan || 'free'}
+			</span>
 		</div>
 
 		<!-- USER BOX + LINKS -->
 		<div class="flex-1 flex flex-col justify-between px-4 py-6 space-y-6 overflow-y-auto bg-white">
 			<!-- user -->
-			<div class="flex items-center gap-3 rounded-md bg-white p-3 shadow-sm">
-				<Avatar class="size-10 rounded-md ring-1 ring-zinc-200 shrink-0">
+			<div class="flex items-center gap-3 rounded-md bg-white p-3 drop-shadow">
+				<Avatar class="size-10 rounded-full ring-1 ring-zinc-200 shrink-0">
 					<AvatarImage
 						src={user?.image ?? 'https://placehold.co/128'}
 						alt={user?.name ?? 'User'}
@@ -42,11 +59,11 @@
 
 				<div class="truncate">
 					<p
-						class="truncate text-sm font-semibold text-zinc-700"
+						class="truncate text-xs font-semibold text-zinc-700"
 					>
 						{user?.name}
 					</p>
-					<p class="truncate text-xs text-zinc-500">{user?.email}</p>
+					<p class="truncate text-[10px] text-zinc-500">{user?.email}</p>
 				</div>
 			</div>
 
@@ -61,7 +78,7 @@
 					: "border-transparent hover:border-fuchsia-500"
 				}`}
 			>
-				<LayoutDashboard class="size-4 text-zinc-500 group-hover:text-fuchsia-500 transition" />
+				<LayoutDashboard class={`size-4 text-zinc-500 group-hover:text-fuchsia-500 transition ${page.url.pathname === "/dashboard" ? "!text-fuchsia-500" : ""}`} />
 				Dashboard
 			</a>
 
@@ -74,7 +91,7 @@
 					: "border-transparent hover:border-green-500"
 				}`}
 			>
-				<Folder class="size-4 text-zinc-500 group-hover:text-green-500 transition" />
+				<Folder class={`size-4 text-zinc-500 group-hover:text-green-500 transition ${page.url.pathname === "/dashboard/my-files" ? "!text-green-500" : ""}`} />
 				My Files
 			</a>
 
@@ -88,20 +105,20 @@
 					: "border-transparent hover:border-blue-500"
 				}`}
 				>
-				<Users class="size-4 text-zinc-500 group-hover:text-blue-500 transition" />
+				<Users class={`size-4 text-zinc-500 group-hover:text-blue-500 transition ${page.url.pathname === "/dashboard/team" ? "!text-blue-500" : ""}`} />
 				Team
 				</a>
 
 				<!-- Team Files -->
 				<a
-				href="/dashboard/team-files"
+				href="/dashboard/files-team"
 				class={`group relative flex items-center gap-3 rounded-lg px-4 py-3 border-l-4 bg-white text-sm font-medium text-zinc-800 shadow-sm hover:shadow-md transition-all ${
-					page.url.pathname.startsWith("/dashboard/team-files")
+					page.url.pathname.startsWith("/dashboard/files-team")
 					? "border-purple-500"
 					: "border-transparent hover:border-purple-500"
 				}`}
 				>
-				<Folder class="size-4 text-zinc-500 group-hover:text-purple-500 transition" />
+				<Folder class={`size-4 text-zinc-500 group-hover:text-purple-500 transition ${page.url.pathname === "/dashboard/files-team" ? "!text-purple-500" : ""}`} />
 				Team Files
 				</a>
 
@@ -114,7 +131,7 @@
 					: "border-transparent hover:border-indigo-500"
 				}`}
 				>
-				<MessageSquare class="size-4 text-zinc-500 group-hover:text-indigo-500 transition" />
+				<MessageSquare class={`size-4 text-zinc-500 group-hover:text-indigo-500 transition ${page.url.pathname === "/dashboard/chat" ? "!text-indigo-500" : ""}`} />
 				Chat
 				</a>
 
@@ -127,7 +144,7 @@
 					: "border-transparent hover:border-orange-500"
 				}`}
 				>
-				<Globe class="size-4 text-zinc-500 group-hover:text-orange-500 transition" />
+				<Globe  class={`size-4 text-zinc-500 group-hover:text-orange-500 transition ${page.url.pathname === "/public-files" ? "!text-orange-500" : ""}`} />
 				Public Files
 				</a>
 			{/if}
@@ -155,14 +172,15 @@
 	<!-- Sidebar Toggle -->
 	<Sidebar.Trigger />
 	<!-- ▸ MAIN CONTENT -->
-	<main
-		class="relative min-h-screen bg-white overflow-x-hidden w-full"
-	>
+	<main class="relative min-h-screen bg-white overflow-x-hidden w-full">
 		<!-- Grid lines -->
 		<div class="absolute inset-0 bg-[length:40px_40px] bg-[linear-gradient(to_right,#f2f2f2_1px,transparent_1px),linear-gradient(to_bottom,#f2f2f2_1px,transparent_1px)] pointer-events-none z-0 opacity-50"></div>
 
 		<!-- Radial gradient background -->
 		<div class="absolute top-[2%] left-1/2 -translate-x-1/2 w-[80vw] h-[50vh] bg-[radial-gradient(ellipse_at_center,_rgba(220,100,245,0.4),_transparent_70%)] z-0"></div>
+
+		<!-- Left whitish overlay -->
+		<div class="absolute inset-y-0 left-0 w-1/5 bg-gradient-to-r from-white/40 via-white/30 to-transparent z-1 pointer-events-none"></div>
 
 		{@render children?.()}
 	</main>

@@ -90,9 +90,9 @@
 	<!-- ─── About Section ─── -->
 	<section class="relative z-10 py-24">
 		<div class="max-w-4xl mx-auto text-center px-6">
-			<h2 class="text-3xl md:text-4xl font-bold text-zinc-900 mb-4">Why Trelae Teams?</h2>
+			<h2 class="text-3xl md:text-4xl font-bold text-zinc-900 mb-4">Why Teams?</h2>
 			<p class="text-zinc-700 text-sm max-w-2xl mx-auto leading-relaxed">
-				Trelae Teams is designed for modern teams who handle heavy assets — videos, designs, datasets, or docs.
+				Teams is designed for modern teams who handle heavy assets — videos, designs, datasets, or docs.
 				No cluttered drives. No guessing permissions. Just smooth, secure, organized file workflows.
 			</p>
 		</div>
@@ -100,6 +100,6 @@
 
 	<!-- ─── Footer ─── -->
 	<footer class="relative z-10 py-6 text-center text-xs text-zinc-500 bg-white/10">
-		© {new Date().getFullYear()} Trelae Teams. Your Files. Perfected.
+		© {new Date().getFullYear()} Teams. Your Files. Perfected.
 	</footer>
 </div>

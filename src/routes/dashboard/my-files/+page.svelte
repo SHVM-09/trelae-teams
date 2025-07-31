@@ -322,72 +322,72 @@
 	let rotate = $state(false);
 </script>
 
-<div class="max-w-6xl mx-auto px-6 py-12 space-y-12">
+<div class="max-w-5xl mx-auto py-12 space-y-12 px-8">
+
+	<!-- ▸ page heading -->
+	<header class="space-y-2 relative">
+		<h1 class="text-2xl font-extrabold tracking-tight text-green-500 flex items-center gap-2">
+		<FolderIcon class="inline-block align-middle" /> My Files
+		</h1>
+		<p class="text-xs text-zinc-600">
+			This is your personal file space — secure and accessible only by you. Upload, manage, and organize your files and folders confidently, knowing they remain private and under your control.
+		</p>
+	</header>
+
 	<section class="rounded-xl border border-zinc-200 bg-white shadow-sm h-[calc(100vh-12rem)] overflow-y-auto relative">
-		<div class="flex items-center justify-between gap-3 mb-4 sticky top-0 bg-zinc-50 z-10 p-6">
-			<div class="flex items-center gap-2">
+		<div class="flex flex-wrap md:flex-nowrap items-center justify-between gap-3 mb-4 sticky top-0 bg-zinc-50 z-10 p-6">
+			<div class="flex flex-wrap items-center gap-2 min-w-0">
 				{#if currentLocation}
 					<Button size="icon" variant="ghost" onclick={navigateUp}>
 						<ArrowLeft class="w-4 h-4" />
 					</Button>
 				{/if}
-				<h3 class="text-lg font-semibold text-zinc-900 flex items-center gap-1">
+				<h3 class="text-lg font-semibold text-zinc-900 flex flex-wrap items-center gap-1 truncate">
 					My Files
-
 					{#if currentLocation}
-						<span class="flex items-center gap-1 text-sm text-zinc-500">
-							{#each currentLocation.split('/').filter(Boolean) as part, i}
+						<span class="flex flex-wrap items-center gap-1 text-sm text-zinc-500">
+							{#each currentLocation.split('/')
+								.filter(Boolean) as part, i}
 								<span>/ {part}</span>
 							{/each}
 						</span>
 					{/if}
 				</h3>
 			</div>
-			<div class="flex items-center gap-2">
+			<div class="flex flex-wrap justify-end gap-2">
 				<input
 					type="text"
 					placeholder="Search..."
-					class="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+					class="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
 					oninput={(e) => {
 						debouncedSearch((e.target as HTMLInputElement).value);
 					}}
 				/>
-				<CreateFolder
-					{currentLocation}
-					onReflectFolder={() => loadFiles()}
-				/>
-				<UploadFile
-					{currentLocation}
-					onReflectUpload={() => loadFiles()}
-				/>
+				<CreateFolder {currentLocation} onReflectFolder={() => loadFiles()} />
+				<UploadFile {currentLocation} onReflectUpload={() => loadFiles()} />
 				<div class="flex gap-1 border rounded-md overflow-hidden cursor-pointer">
 					<button
 						class="p-2.5 flex items-center gap-1 text-sm font-medium
-							{!isGridView ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-700'} transition"
+						{!isGridView ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-700'} transition"
 						onclick={() => isGridView = false}>
 						<Table class="size-3.5" />
 					</button>
 					<button
 						class="p-2.5 flex items-center gap-1 text-sm font-medium
-							{isGridView ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-700'} transition"
+						{isGridView ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-700'} transition"
 						onclick={() => isGridView = true}>
 						<LayoutGrid class="size-3.5" />
 					</button>
 				</div>
 				{#if copiedFileId}
-					<Button variant="outline" onclick={pasteFile}>
-						Paste here
-					</Button>
+					<Button variant="outline" onclick={pasteFile}>Paste here</Button>
 				{/if}
 				{#if moveFileId}
 					<Button
 						variant="outline"
 						onclick={confirmMoveFile}
 						disabled={myFiles.find(f => f.id === moveFileId)?.location === currentLocation}
-						title={myFiles.find(f => f.id === moveFileId)?.location === currentLocation
-							? 'File is already in this location'
-							: 'Move file here'}
-					>
+						title={myFiles.find(f => f.id === moveFileId)?.location === currentLocation ? 'File is already in this location' : 'Move file here'}>
 						Move here
 					</Button>
 				{/if}
@@ -404,8 +404,9 @@
 				</Button>
 			</div>
 		</div>
+
 		{#if !isGridView}
-			<div class="overflow-x-auto">
+			<div class="overflow-x-auto h-[84%]">
 				<table class="min-w-full text-sm">
 					<thead class="border-b">
 						<tr>
@@ -532,101 +533,74 @@
 				</table>
 			</div>
 		{:else}
-		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 gap-y-4 p-4 pt-8 relative">
+			<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 gap-y-4 p-4 pt-8 relative">
 			{#if myFiles.length}
 				{#each myFiles as file}
+				<div
+					class="group relative flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white/90 p-4 shadow transition hover:shadow-lg hover:border-zinc-300 min-h-44 {moveFileId === file.id ? 'opacity-50' : ''} {selectedIds.includes(file.id) ? 'ring-2 ring-blue-500 !bg-blue-50/60' : ''}"
+					onclick={() => handleGridClick(file)}
+					role="presentation"
+				>
 					<div
-						class="border p-4 rounded-lg shadow-sm flex flex-col gap-2 bg-white relative {moveFileId === file.id ? 'opacity-50' : ''} {selectedIds.includes(file.id) ? '!bg-blue-50' : ''} transition h-fit"
+					class="mx-auto flex size-20 items-center justify-center rounded-xl text-white shadow-inner shadow-black/10 {file.type === 'folder' ? 'bg-gradient-to-br from-blue-400 via-blue-500 to-indigo-500' : 'bg-gradient-to-br from-fuchsia-400 via-pink-500 to-rose-500'}"
 					>
-						<div class="flex flex-col">
-							{#if file.type === 'folder'}
-								<FolderIcon class="size-20" />
-							{:else}
-								<FileIcon class="size-20" />
-							{/if}
-							<span class="font-medium truncate ps-2 mt-2">{file.name}</span>
-							<div class="text-xs text-zinc-500 ps-2 flex justify-between">
-								{file.location ? `/${file.location}` : 'root'} <span>{file.type === 'folder' ? '' : `${(Number(file.size) / 1024).toFixed(2)} KB`}</span>
-							</div>
-						</div>
-
-						<div class="absolute top-2 right-2 z-10">
-							<div class="flex items-center gap-1">
-								<Button
-									size="icon"
-									variant="ghost"
-									onclick={(e) => {
-										e.stopPropagation();
-										openFileOrFolder(file);
-									}}
-									class="size-6 p-2"
-									title={file.type === 'folder' ? 'Open Folder' : 'Open File'}
-								>
-									<ExternalLink class="size-4" />
-								</Button>
-								<DropdownMenu.Root>
-									<DropdownMenu.Trigger class="rounded-md p-1 text-zinc-500 hover:bg-zinc-200" aria-label="File actions">
-										<MoreVertical class="size-4" />
-									</DropdownMenu.Trigger>
-									<DropdownMenu.Content
-										class="min-w-28 rounded-md border border-zinc-200 bg-white p-1 font-normal shadow-lg text-xs"
-										align="end"
-									>
-										<DropdownMenu.RadioGroup>
-											{#if file.type === 'file'}
-												<DropdownMenu.RadioItem
-													value="download"
-													class="flex items-center gap-2 w-full text-left rounded-md px-2 py-1 text-sm hover:bg-zinc-100"
-													onclick={() => downloadFile(file.id)}
-												>
-													<Download size="16" /> Download
-												</DropdownMenu.RadioItem>
-												<DropdownMenu.RadioItem
-													value="copy"
-													class="flex items-center gap-2 w-full text-left rounded-md px-2 py-1 text-sm hover:bg-zinc-100"
-													onclick={() => copyFile(file)}
-												>
-													<Copy size="16" /> Copy
-												</DropdownMenu.RadioItem>
-												<DropdownMenu.RadioItem
-													value="move"
-													class="flex items-center gap-2 w-full text-left rounded-md px-2 py-1 text-sm hover:bg-zinc-100"
-													onclick={() => moveFile(file)}
-												>
-													<Move size="16" /> Move
-												</DropdownMenu.RadioItem>
-											{/if}
-											<DropdownMenu.RadioItem
-												value="delete"
-												class="flex items-center gap-2 w-full text-left rounded-md px-2 py-1 text-sm text-red-600 hover:bg-red-600/10"
-												onclick={() => askDelete(file)}
-											>
-												<Trash size="16" /> Delete
-											</DropdownMenu.RadioItem>
-										</DropdownMenu.RadioGroup>
-									</DropdownMenu.Content>
-								</DropdownMenu.Root>
-							</div>
-						</div>
-
-						<div
-							class="absolute inset-0 rounded-lg {selectedIds.includes(file.id) ? 'ring-2 ring-blue-500 border-blue-300' : ''}"
-							onclick={() => handleGridClick(file)}
-							role="presentation"
-						></div>
+					{#if file.type === 'folder'}
+						<FolderIcon class="size-8" stroke-width="1.6" />
+					{:else}
+						<FileIcon class="size-8" stroke-width="1.6" />
+					{/if}
 					</div>
+
+					<div class="space-y-0.5 text-center">
+					<p class="truncate text-sm font-medium text-zinc-900">{file.name}</p>
+					<p class="flex justify-center text-xs text-zinc-500 text-center">
+						<span class="truncate">{file.location ? '/' + file.location : 'root'}</span>
+					</p>
+					<span class="block text-center text-[10px] text-zinc-500">{file.type === 'folder' ? '' : `${(Number(file.size) / 1024).toFixed(2)} KB`}</span>
+					</div>
+
+					<div class="absolute top-2 right-2 z-10">
+						<DropdownMenu.Root>
+							<DropdownMenu.Trigger class="rounded-md p-1 hover:bg-zinc-200" aria-label="File actions">
+							<MoreVertical class="size-4 text-zinc-600" />
+							</DropdownMenu.Trigger>
+							<DropdownMenu.Content
+							class="min-w-32 rounded-md border border-zinc-200 bg-white p-1 shadow-lg text-xs z-20"
+							align="end"
+							>
+							<DropdownMenu.Item onclick={(e) => { e.stopPropagation(); openFileOrFolder(file); }} class="flex items-center gap-2 rounded px-2 py-1 hover:bg-zinc-100">
+								<ExternalLink class="size-4" />Open
+							</DropdownMenu.Item>
+							{#if file.type === 'file'}
+								<DropdownMenu.Item onclick={(e) => { e.stopPropagation(); downloadFile(file.id) }} class="flex items-center gap-2 rounded px-2 py-1 hover:bg-zinc-100">
+								<Download size="14" />Download
+								</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={(e) => { e.stopPropagation(); copyFile(file) }} class="flex items-center gap-2 rounded px-2 py-1 hover:bg-zinc-100">
+								<Copy size="14" />Copy
+								</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={(e) => { e.stopPropagation(); moveFile(file) }} class="flex items-center gap-2 rounded px-2 py-1 hover:bg-zinc-100">
+								<Move size="14" />Move
+								</DropdownMenu.Item>
+							{/if}
+							<DropdownMenu.Item onclick={(e) => { e.stopPropagation(); askDelete(file) }} class="flex items-center gap-2 rounded px-2 py-1 text-red-600 hover:bg-red-600/10">
+								<Trash size="14" />Delete
+							</DropdownMenu.Item>
+							</DropdownMenu.Content>
+						</DropdownMenu.Root>
+					</div>
+				</div>
 				{/each}
 				{#if selectedIds.length > 0}
 					<div class="absolute -top-2 right-4 z-20">
-						<Button size="sm" variant="secondary" onclick={askBulkDelete}>
+						<Button size="sm" class="font-light opacity-75 hover:opacity-100" variant="secondary" onclick={askBulkDelete}>
 							Delete Selected ({selectedIds.length})
 						</Button>
 					</div>
 				{/if}
 			{:else}
-				<p class="text-zinc-500 col-span-full text-center">Empty! Create a folder or upload a file here.</p>
+				<p class="col-span-full py-10 text-center text-zinc-500">Empty! Create a folder or upload a file here.</p>
 			{/if}
-		</div>
+			</div>
 		{/if}
 	</section>
 
