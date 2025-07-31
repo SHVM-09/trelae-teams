@@ -1,93 +1,105 @@
 <script lang="ts">
 	import { Button } from "$lib/components/ui/button";
-    import Header from "$lib/custom-components/Header.svelte";
+	import Header from "$lib/custom-components/Header.svelte";
 	import { goto } from "$app/navigation";
+	import { Lock, Users, Rocket } from "lucide-svelte"; // ⬅️ Lucide icons
 
 	const { data } = $props();
 	const { session } = data.data;
 </script>
 
-<!-- Header component -->
-<Header session={session as { user?: { name?: string; image?: string; email?: string } } | null | undefined} />
+<!-- Header -->
+<Header session={session ? {
+	user: {
+		name: session.user?.name ?? undefined,
+		email: session.user?.email ?? undefined,
+		image: session.user?.image ?? undefined
+	}
+} : session} />
 
-<!-- Hero Section -->
-<section class="max-w-7xl mx-auto px-6 py-28 text-center flex flex-col items-center bg-gradient-to-b from-white to-zinc-50 rounded-lg">
-	<h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-zinc-900 mb-6">
-		Trelae<span class="text-zinc-600 text-6xl md:text-8xl">Teams</span>
-        <span class="text-zinc-900 font-normal tracking-normal text-xl block">Your Files. Perfected.</span>
-	</h1>
-	<p class="text-lg md:text-xl text-zinc-600 mb-10 max-w-2xl leading-relaxed">
-		A modern way to organize, manage, and share your files and assets across your team — with total control.
-	</p>
+<!-- ─── Grid + Header ─── -->
+<div class="relative min-h-screen bg-white overflow-x-hidden">
+	<!-- Grid lines -->
+	<div class="absolute inset-0 bg-[length:40px_40px] bg-[linear-gradient(to_right,#f2f2f2_1px,transparent_1px),linear-gradient(to_bottom,#f2f2f2_1px,transparent_1px)] pointer-events-none z-0 opacity-50"></div>
 
-	{#if !session}
-		<Button
-			size="lg"
-			class="px-8 py-4 text-md shadow-md hover:shadow-lg transition"
-			onclick={() => goto("/login")}
-		>
-			Launch Your Team Hub
-		</Button>
-	{:else}
-		<p class="text-md text-zinc-600 mb-4">
-			Welcome back, {session.user?.name}!
+	<!-- Centered radial gradient behind Teams text -->
+	<div class="absolute top-[2%] left-1/2 -translate-x-1/2 w-[80vw] h-[50vh] bg-[radial-gradient(ellipse_at_center,_rgba(220,100,245,0.4),_transparent_70%)] z-0"></div>
+
+	<!-- ─── Hero ─── -->
+	<section class="relative z-10 max-w-5xl mx-auto px-6 pt-32 pb-16 text-center flex flex-col items-center">
+		<h1 class="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-br from-pink-300 via-purple-500 to-fuchsia-300 bg-clip-text text-transparent">Teams</h1>
+		<p class="text-sm mt-5 leading-relaxed max-w-xl text-zinc-700">
+			Your Files. Perfected. <br />
+			Built for fast-moving teams who care about <span class="font-semibold text-zinc-900">speed, security</span>, and <span class="font-semibold text-zinc-900">simplicity</span>.
 		</p>
-		<Button
-			size="lg"
-			class="px-8 py-4 text-md shadow-md hover:shadow-lg transition"
-			onclick={() => goto("/dashboard")}
-		>
-			Open Dashboard
-		</Button>
-	{/if}
-</section>
 
-<!-- Unique 3-Column Highlights -->
-<section class="max-w-7xl mx-auto px-6 py-24 grid md:grid-cols-3 gap-10 text-left">
-	<div class="space-y-4 bg-gradient-to-b from-white to-zinc-100 p-6 rounded-lg shadow-md">
-		<div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-			<span class="text-blue-600 text-xl">🔐</span>
+		{#if !session}
+			<Button
+				class="mt-8 px-8 py-4 text-sm rounded-tl-2xl rounded-br-2xl bg-black text-white shadow-md hover:brightness-110 transition-all"
+				onclick={() => goto("/login")}
+			>
+				Experience Teams
+			</Button>
+		{:else}
+			<p class="mt-6 text-md text-zinc-700/80 italic font-light">Welcome back, {session.user?.name}!</p>
+			<Button
+				class="mt-8 px-8 py-4 text-sm rounded-tl-2xl rounded-br-2xl bg-black text-white shadow-md hover:brightness-110 transition-all"
+				onclick={() => goto("/dashboard")}
+			>
+				Open Dashboard
+			</Button>
+		{/if}
+	</section>
+
+	<!-- ─── Feature Cards (with gradient border + lucide icons) ─── -->
+	<section class="relative z-10 max-w-5xl mx-auto px-6 py-28 flex flex-col md:flex-row gap-6 md:gap-10 items-start justify-center">
+		<!-- Card 1 -->
+		<div class="p-[1px] rounded-2xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 shadow-lg hover:scale-[1.02] transition-all w-full md:w-[28%]">
+			<div class="bg-white p-6 rounded-[calc(1rem-1px)] text-zinc-800 h-full">
+				<Lock class="w-6 h-6 mb-3 text-blue-500" />
+				<h3 class="text-lg font-semibold">Secure Namespaces</h3>
+				<p class="mt-2 text-xs leading-relaxed text-zinc-600">
+					Keep your files safe and organized with private or public namespaces — share only what you want.
+				</p>
+			</div>
 		</div>
-		<h3 class="text-xl font-semibold text-zinc-900">Secure Namespaces</h3>
-		<p class="text-zinc-600">
-			Keep your files safe and organized with private or public namespaces — share only what you want.
-		</p>
-	</div>
-	<div class="space-y-4 bg-gradient-to-b from-white to-zinc-100 p-6 rounded-lg shadow-md">
-		<div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-			<span class="text-green-600 text-xl">👥</span>
-		</div>
-		<h3 class="text-xl font-semibold text-zinc-900">Team Collaboration</h3>
-		<p class="text-zinc-600">
-			Invite teammates, assign roles, and work together on files in real time — no more email clutter.
-		</p>
-	</div>
-	<div class="space-y-4 bg-gradient-to-b from-white to-zinc-100 p-6 rounded-lg shadow-md">
-		<div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-			<span class="text-purple-600 text-xl">🚀</span>
-		</div>
-		<h3 class="text-xl font-semibold text-zinc-900">Large File Power</h3>
-		<p class="text-zinc-600">
-			Upload, move, copy, and serve huge files fast — no size anxiety, only smooth transfers.
-		</p>
-	</div>
-</section>
 
-<!-- New About Section -->
-<section class="bg-blue-50 py-20">
-	<div class="max-w-4xl mx-auto text-center px-6">
-		<h3 class="text-3xl md:text-4xl font-bold text-zinc-900 mb-4">
-			Why Trelae Teams?
-		</h3>
-		<p class="text-zinc-700 text-lg max-w-2xl mx-auto">
-			Trelae Teams is built for modern teams who handle rich assets: design files, videos, docs — all in one place.
-			Forget messy drives, scattered links, and confusing permission trails.
-			Control, share, and scale — without limits.
-		</p>
-	</div>
-</section>
+		<!-- Card 2 -->
+		<div class="p-[1px] rounded-3xl bg-gradient-to-br from-green-500 via-teal-400 to-emerald-500 shadow-2xl hover:scale-[1.03] transition-all w-full md:w-[34%]">
+			<div class="bg-white p-8 rounded-[calc(1.5rem-1px)] text-zinc-800 h-full">
+				<Users class="w-7 h-7 mb-4 text-green-600" />
+				<h3 class="text-xl font-semibold">Team Collaboration</h3>
+				<p class="mt-3 text-xs leading-relaxed text-zinc-600">
+					Invite teammates, assign roles, and work together on files in real time — no more email clutter.
+				</p>
+			</div>
+		</div>
 
-<!-- Footer -->
-<footer class="bg-white border-t py-6 mt-12 text-center text-sm text-zinc-500">
-	© {new Date().getFullYear()} Trelae Teams. Your Files. Perfected.
-</footer>
+		<!-- Card 3 -->
+		<div class="p-[1px] rounded-2xl bg-gradient-to-br from-pink-500 via-purple-500 to-fuchsia-500 shadow-lg hover:scale-[1.02] transition-all w-full md:w-[28%]">
+			<div class="bg-white p-6 rounded-[calc(1rem-1px)] text-zinc-800 h-full">
+				<Rocket class="w-6 h-6 mb-3 text-fuchsia-500" />
+				<h3 class="text-lg font-semibold">Large File Power</h3>
+				<p class="mt-2 text-xs leading-relaxed text-zinc-600">
+					Upload, move, copy, and serve huge files fast — no size anxiety, only smooth transfers.
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- ─── About Section ─── -->
+	<section class="relative z-10 py-24">
+		<div class="max-w-4xl mx-auto text-center px-6">
+			<h2 class="text-3xl md:text-4xl font-bold text-zinc-900 mb-4">Why Trelae Teams?</h2>
+			<p class="text-zinc-700 text-sm max-w-2xl mx-auto leading-relaxed">
+				Trelae Teams is designed for modern teams who handle heavy assets — videos, designs, datasets, or docs.
+				No cluttered drives. No guessing permissions. Just smooth, secure, organized file workflows.
+			</p>
+		</div>
+	</section>
+
+	<!-- ─── Footer ─── -->
+	<footer class="relative z-10 py-6 text-center text-xs text-zinc-500 bg-white/10">
+		© {new Date().getFullYear()} Trelae Teams. Your Files. Perfected.
+	</footer>
+</div>

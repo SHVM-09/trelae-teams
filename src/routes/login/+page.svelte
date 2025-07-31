@@ -14,24 +14,31 @@
 		}
 	});
 </script>
- 
+
 <Header session={data.session as { user?: { name?: string; image?: string; email?: string } } | null | undefined} />
 
-<div class="min-h-screen flex flex-col justify-center items-center px-4 bg-gradient-to-br from-white to-zinc-50">
-	<div class="w-full max-w-md space-y-6 text-center -mt-20 lg:-mt-40">
-		<h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-zinc-900">
-			<span class="text-zinc-900">Trelae</span>
-			<span class="text-5xl md:text-6xl text-zinc-600">Teams</span>
-            <span class="text-zinc-900 font-normal text-base block">Your Files. Perfected.</span>
+<!-- ─── Grid + Gradient BG ─── -->
+<div class="relative min-h-screen bg-white overflow-x-hidden">
+	<!-- Grid lines -->
+	<div class="absolute inset-0 bg-[length:40px_40px] bg-[linear-gradient(to_right,#f2f2f2_1px,transparent_1px),linear-gradient(to_bottom,#f2f2f2_1px,transparent_1px)] pointer-events-none z-0 opacity-50"></div>
+
+	<!-- Radial gradient background -->
+	<div class="absolute top-[2%] left-1/2 -translate-x-1/2 w-[80vw] h-[50vh] bg-[radial-gradient(ellipse_at_center,_rgba(220,100,245,0.4),_transparent_70%)] z-0"></div>
+
+	<!-- ─── Login Hero ─── -->
+	<section class="relative z-10 flex flex-col justify-center items-center text-center pt-32 pb-16 px-4">
+		<h1 class="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-br from-pink-500 via-purple-500 to-fuchsia-500 bg-clip-text text-transparent">
+			Teams
 		</h1>
-		<p class="text-zinc-600 leading-relaxed text-base md:text-lg italic">
-			The smarter way for your team to store, share, and manage files. Sign in to get started.
+		<p class="text-sm mt-5 leading-relaxed max-w-xl text-zinc-700">
+			Access your files with ease. <br />
+			Sign in securely with Google to collaborate, share, and manage everything in one place.
 		</p>
 
 		{#if !data.session}
 			<Button
 				size="lg"
-				class="flex justify-center items-center gap-2 text-md px-6 py-4 shadow-md hover:shadow-lg transition mx-auto"
+				class="mt-8 px-8 py-4 text-sm rounded-tl-2xl rounded-br-2xl bg-black text-white shadow-md hover:brightness-110 transition-all flex justify-center items-center gap-2 cursor-pointer"
 				onclick={() => signIn("google", { callbackUrl: "/dashboard" })}
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" width="2443" height="2500" preserveAspectRatio="xMidYMid" viewBox="0 0 256 262" id="google">
@@ -40,10 +47,15 @@
                     <path fill="#FBBC05" d="M56.281 156.37c-2.756-8.123-4.351-16.827-4.351-25.82 0-8.994 1.595-17.697 4.206-25.82l-.073-1.73L15.26 71.312l-1.335.635C5.077 89.644 0 109.517 0 130.55s5.077 40.905 13.925 58.602l42.356-32.782"></path>
                     <path fill="#EB4335" d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0 79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"></path>
                 </svg>
-                <span>Sign in with Google</span>
+				<span>Sign in with Google</span>
 			</Button>
 		{/if}
 
-		<a href="/" class="inline-block text-sm text-zinc-500 hover:text-zinc-800 transition">← Back to home</a>
-	</div>
+		<a href="/" class="mt-4 inline-block text-sm text-zinc-500 hover:text-zinc-800 transition">← Back</a>
+	</section>
+
+	<!-- ─── Footer ─── -->
+	<footer class="fixed z-10 py-6 text-center text-xs text-zinc-500 bg-white/10 bottom-0 w-full">
+		© {new Date().getFullYear()} Teams. Your Files. Perfected.
+	</footer>
 </div>

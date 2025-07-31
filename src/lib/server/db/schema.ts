@@ -21,6 +21,7 @@ export const teams = pgTable("teams", {
   name: text("name").notNull(),
   plan: text("plan").notNull(), // e.g. basic / pro / enterprise
   publicPassword: text("public_password"),
+  publicPasswordPlain: text("public_password_plain"), // NEW: store plaintext password for admin use
   createdAt: timestamp("created_at").defaultNow(),
 });
 
