@@ -113,14 +113,14 @@
   </header>
 
   <!-- ─── Members ─── -->
-  <section class="rounded-lg border border-zinc-200 bg-white shadow-sm p-6 relative overflow-auto">
-    <h2 class="text-xl font-semibold text-zinc-900 mb-4">Team</h2>
-    <table class="w-full text-sm">
+  <section class="rounded-lg border border-zinc-200 bg-white shadow-sm p-0 pb-4 relative">
+    <h2 class="text-xl font-semibold text-zinc-900 p-4">Team</h2>
+    <table class="w-full text-sm overflow-x-auto">
       <thead class="border-b">
         <tr>
-          <th class="px-4 py-2 text-left">Name</th>
-          <th class="px-4 py-2 text-left">Email</th>
-          <th class="px-4 py-2 text-left">Role</th>
+          <th class="px-4 py-2 text-left font-medium text-zinc-600">Name</th>
+          <th class="px-4 py-2 text-left font-medium text-zinc-600">Email</th>
+          <th class="px-4 py-2 text-left font-medium text-zinc-600">Role</th>
           <th class="px-4 py-2 text-right"></th>
           <th class="px-4 py-2 text-right"></th>
         </tr>
@@ -206,14 +206,14 @@
   {/if}
 
   <!-- ─── Invites ─── -->
-  <section class="rounded-lg border border-zinc-200 bg-white shadow-sm p-6 relative overflow-auto">
-    <h2 class="text-xl font-semibold text-zinc-900 mb-4">Pending&nbsp;Invites</h2>
-    <table class="w-full text-sm">
+  <section class="rounded-lg border border-zinc-200 bg-white shadow-sm p-0 pb-4 relative">
+    <h2 class="text-xl font-semibold text-zinc-900 p-4">Pending&nbsp;Invites</h2>
+    <table class="w-full text-sm overflow-x-auto">
       <thead class="border-b">
         <tr>
-          <th class="px-4 py-2 text-left">Email</th>
-          <th class="px-4 py-2 text-left">Sent&nbsp;At</th>
-          <th class="px-4 py-2 text-right">Actions</th>
+          <th class="px-4 py-2 text-left font-medium text-zinc-600">Email</th>
+          <th class="px-4 py-2 text-left font-medium text-zinc-600">Sent&nbsp;At</th>
+          <th class="px-4 py-2 text-right font-medium text-zinc-600">Actions</th>
         </tr>
       </thead>
       <tbody>
