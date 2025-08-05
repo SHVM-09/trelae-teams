@@ -3,6 +3,7 @@ import { json } from "@sveltejs/kit";
 import { db }   from "$lib/server/db";
 import { users, teams } from "$lib/server/db/schema";
 import { eq }   from "drizzle-orm";
+import { env } from "$env/dynamic/private";
 import { sendEmail } from "$lib/server/email";
 
 export const POST = async ({ request, locals }) => {
@@ -37,7 +38,7 @@ export const POST = async ({ request, locals }) => {
 			`Team ID : ${team.id}`,
 			`Password: ${team.pw ?? "(no password set)"}`,
 			"",
-			`Visit ${process.env.PUBLIC_SITE_URL}/public-files to unlock the files.`
+			`Visit ${env.PUBLIC_SITE_URL}/public-files to unlock the files.`
 		].join("\n")
 	});
 

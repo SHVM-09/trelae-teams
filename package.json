@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "concurrently \"pnpm dev:svelte\" \"pnpm start:socket\"",
 		"dev:svelte": "vite dev",
-		"start:socket": "tsx socket-server.ts",
+		"start:socket": "tsx src/socket-server.ts",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",

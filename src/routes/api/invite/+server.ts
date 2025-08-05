@@ -2,6 +2,7 @@ import { json } from "@sveltejs/kit";
 import { db } from "$lib/server/db";
 import { invites, users, teams } from "$lib/server/db/schema";
 import { randomUUID } from "crypto";
+import { env } from "$env/dynamic/private";
 import { eq, and, count } from "drizzle-orm";
 import { sendEmail } from "$lib/server/email";
 
@@ -61,7 +62,7 @@ export const POST = async ({ request, locals }) => {
 	const result = await sendEmail({
 		to: [email],
 		subject: "You're invited to Trelae Teams",
-		text: `Join: ${process.env.PUBLIC_SITE_URL}/dashboard/invite?token=${token}`
+		text: `Join: ${env.PUBLIC_SITE_URL}/dashboard/invite?token=${token}`
 	});
 
 	return json({ success: true });

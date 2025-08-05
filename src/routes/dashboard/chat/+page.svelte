@@ -4,6 +4,7 @@
   import ConfirmDeleteDialog from '../confirmDeleteDialog.svelte';
   import type { PageProps } from './$types';
   import { Trash, Reply, Link2, MessageSquare } from 'lucide-svelte';
+  import { env } from "$env/dynamic/public";
 
   let { data }: PageProps = $props();
 
@@ -37,7 +38,7 @@
   ];
 
   onMount(() => {
-    socket = io(import.meta.env.VITE_SOCKET_URL, {
+    socket = io(env.PUBLIC_SOCKET_URL, {
       path: '/api/socket',
       transports: ['websocket', 'polling']
     });

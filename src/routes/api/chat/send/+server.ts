@@ -1,10 +1,11 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { users } from '$lib/server/db/schema';
+import { env } from "$env/dynamic/private";
 import { eq } from 'drizzle-orm';
 import 'dotenv/config';
 
-const SOCKET_SERVER_URL = process.env.SOCKET_SERVER_URL ?? 'http://localhost:3001';
+const SOCKET_SERVER_URL = env.SOCKET_SERVER_URL ?? 'http://localhost:3001';
 
 export const POST = async ({ locals, request, fetch }) => {
   const session = await locals.auth();
