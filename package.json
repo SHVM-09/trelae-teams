@@ -4,7 +4,7 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		 "dev": "concurrently \"pnpm dev:svelte\" \"pnpm start:socket\"",
+		"dev": "concurrently \"pnpm dev:svelte\" \"pnpm start:socket\"",
 		"dev:svelte": "vite dev",
 		"start:socket": "tsx socket-server.ts",
 		"build": "vite build",
@@ -22,6 +22,7 @@
 		"@internationalized/date": "^3.8.1",
 		"@lucide/svelte": "^0.515.0",
 		"@sveltejs/adapter-auto": "^6.0.0",
+		"@sveltejs/adapter-vercel": "^5.8.1",
 		"@sveltejs/kit": "^2.16.0",
 		"@sveltejs/vite-plugin-svelte": "^5.0.0",
 		"@tailwindcss/vite": "^4.0.0",
