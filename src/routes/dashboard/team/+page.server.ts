@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { users, invites } from '$lib/server/db/schema';
+import { users, invites, teams } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 
@@ -10,7 +10,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 		return {
 			session: null,
 			members: [],
-			invites: []
+			invites: [],
+			maxSeats: 0,
+			occupiedSeats: 0
 		};
 	}
 
@@ -23,7 +25,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 		return {
 			session,
 			members: [],
-			invites: []
+			invites: [],
+			maxSeats: 0,
+			occupiedSeats: 0
 		};
 	}
 
@@ -37,9 +41,16 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.from(invites)
 		.where(eq(invites.teamId, me.teamId));
 
+	const [team] = await db
+		.select({ maxSeats: teams.maxSeats })
+		.from(teams)
+		.where(eq(teams.id, me.teamId));
+
 	return {
 		session,
 		members,
-		invites: invitesList
+		invites: invitesList,
+		maxSeats: team?.maxSeats ?? 0,
+		occupiedSeats: members.length + invitesList.length
 	};
 };

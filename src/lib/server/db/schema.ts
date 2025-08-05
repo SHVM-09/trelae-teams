@@ -20,6 +20,7 @@ export const teams = pgTable("teams", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   plan: text("plan").notNull(), // e.g. basic / pro / enterprise
+  maxSeats: integer("max_seats").notNull().default(5), // NEW: seat limit per plan
   publicPassword: text("public_password"),
   publicPasswordPlain: text("public_password_plain"), // NEW: store plaintext password for admin use
   createdAt: timestamp("created_at").defaultNow(),

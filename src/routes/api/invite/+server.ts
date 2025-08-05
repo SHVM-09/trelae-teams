@@ -1,8 +1,8 @@
 import { json } from "@sveltejs/kit";
 import { db } from "$lib/server/db";
-import { invites, users } from "$lib/server/db/schema";
+import { invites, users, teams } from "$lib/server/db/schema";
 import { randomUUID } from "crypto";
-import { eq, and } from "drizzle-orm";
+import { eq, and, count } from "drizzle-orm";
 import { sendEmail } from "$lib/server/email";
 
 export const POST = async ({ request, locals }) => {
@@ -32,6 +32,19 @@ export const POST = async ({ request, locals }) => {
 	});
 	if (existingInvite) {
 		return new Response("User already invited", { status: 409 });
+	}
+
+	// Enforce max seats
+	const [team] = await db.select({ maxSeats: teams.maxSeats }).from(teams).where(eq(teams.id, u.teamId!));
+	if (!team) return new Response("Team not found", { status: 404 });
+
+	const [countResult] = await db
+		.select({ count: count() })
+		.from(users)
+		.where(eq(users.teamId, u.teamId!));
+
+	if (countResult.count >= team.maxSeats) {
+		return new Response("Team has reached its member limit", { status: 403 });
 	}
 
 	//  Insert and send invite

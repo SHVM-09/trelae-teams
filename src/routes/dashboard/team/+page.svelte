@@ -97,6 +97,9 @@
     navigator.clipboard.writeText(txt);
     toast.success('Copied');
   }
+
+  const maxSeats = data.maxSeats;
+  const occupiedSeats = data.occupiedSeats;
 </script>
 
 <!-- ═════════════════ MAIN PAGE ═════════════════ -->
@@ -114,7 +117,7 @@
 
   <!-- ─── Members ─── -->
   <section class="rounded-lg border border-zinc-200 bg-white shadow-sm p-0 pb-4 relative">
-    <h2 class="text-xl font-semibold text-zinc-900 p-4">Team</h2>
+    <h2 class="text-xl font-semibold text-zinc-900 p-4 flex justify-between gap-2 items-center">Team <span class="text-sm font-light text-zinc-600">Members: {occupiedSeats} / {maxSeats}</span></h2>
     <table class="w-full text-sm overflow-x-auto">
       <thead class="border-b">
         <tr>

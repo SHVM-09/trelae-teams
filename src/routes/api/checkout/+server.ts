@@ -6,6 +6,12 @@ import { users, teams } from "$lib/server/db/schema";
 import { trelae } from "$lib/trelae";
 import { eq } from "drizzle-orm";
 
+const seatsByPlan = {
+  basic: 5,
+  pro: 20,
+  enterprise: 50
+} as const;
+
 export const POST = async ({ request }) => {
 	const { plan, email } = await request.json();
 	if (!plan || !email) return new Response("Missing plan or email", { status: 400 });
@@ -17,11 +23,12 @@ export const POST = async ({ request }) => {
 
 	const teamId = randomUUID();
 
-	// Create the team with plan
+	// Create the team with plan + maxSeats
 	await db.insert(teams).values({
 		id: teamId,
 		name: `Team of ${email}`,
 		plan: plan,
+		maxSeats: seatsByPlan[plan as keyof typeof seatsByPlan] ?? 5,
 	});
 
 	// Update user with role + teamId

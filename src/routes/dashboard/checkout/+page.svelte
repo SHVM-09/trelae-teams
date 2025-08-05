@@ -92,16 +92,17 @@
 			<div class="rounded-xl bg-gradient-to-br from-white to-zinc-50 p-8 sm:p-10 text-center h-auto">
 				<h3 class="text-base font-semibold text-indigo-600">Enterprise</h3>
 				<p class="mt-4 flex items-baseline justify-center gap-x-2">
-					<span class="text-4xl font-bold text-zinc-900">Custom</span>
+					<span class="text-4xl font-bold text-zinc-900">$60</span>
+					<span class="text-sm text-zinc-500">/ month</span>
 				</p>
-				<p class="mt-4 text-zinc-600">Unlimited members & usage</p>
+				<p class="mt-4 text-zinc-600">Up to 50 team members</p>
 				<ul class="mt-6 space-y-2 text-sm text-zinc-600 text-left">
 					<li>✔ Dedicated support</li>
 					<li>✔ Unlimited storage</li>
 					<li>✔ Custom integrations</li>
 				</ul>
 				<Button class="mt-8 w-full" onclick={() => subscribe("enterprise")}>
-					Contact Sales
+				Choose Enterprise
 				</Button>
 			</div>
 		</div>
