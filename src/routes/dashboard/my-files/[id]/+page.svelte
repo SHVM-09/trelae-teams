@@ -34,7 +34,7 @@
 	}
 </script>
 
-<div class="max-w-7xl mx-auto px-6">
+<div class="max-w-7xl mx-auto py-24 relative z-10 px-6">
 	<a href="/dashboard/my-files" class="text-sm text-blue-600 hover:underline flex items-center gap-1 mb-2">
 		<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
 			<path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />

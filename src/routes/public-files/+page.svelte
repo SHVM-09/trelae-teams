@@ -443,7 +443,7 @@
         </div>
 
         {#if !isGridView}
-          <div class="overflow-x-auto h-[84%]">
+          <div class="overflow-x-auto h-[84%] mt-2">
             <table class="min-w-full text-sm">
               <thead class="border-b">
                 <tr>
@@ -474,13 +474,13 @@
                           <input type="checkbox" class="size-4" checked={selectedIds.includes(file.id)} onclick={(e)=>{e.stopPropagation();toggleSelect(file.id)}}/>
                         {/if}
                       </td>
-                      <td class="px-4 py-3 flex items-center gap-2 truncate">
+                      <td class="px-4 py-3 flex items-center gap-2">
                         {#if file.type === 'folder'}
                           <FolderIcon class="size-4" />
                         {:else}
                           <FileIcon class="size-4" />
                         {/if}
-                        {file.name}
+                        <span class="max-w-40 truncate">{file.name}</span>
                       </td>
                       <td class="px-4 py-3 text-zinc-600">{file.location?`/${file.location}`:'/'}</td>
                       <td class="px-4 py-3 text-zinc-600">{file.type}</td>
@@ -500,8 +500,8 @@
                           : '-'}
                       </td>
                       <td class="px-4 py-3 text-right flex gap-2 justify-end">
-                        <Button size="icon" variant="ghost" class="size-6" onclick={(e)=>{e.stopPropagation();downloadFile(file.id);}}><Download class="size-4"/></Button>
                         {#if canEdit && file.type==='file'}
+                          <Button size="icon" variant="ghost" class="size-6" onclick={(e)=>{e.stopPropagation();downloadFile(file.id);}}><Download class="size-4"/></Button>
                           <Button size="icon" variant="ghost" class="size-6" onclick={(e)=>{e.stopPropagation();copyFile(file);}}><Copy class="size-3.5"/></Button>
                           <Button size="icon" variant="ghost" class="size-6" onclick={(e)=>{e.stopPropagation();moveFile(file);}}><Move class="size-3.5"/></Button>
                         {/if}

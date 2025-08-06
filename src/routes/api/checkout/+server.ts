@@ -7,9 +7,10 @@ import { trelae } from "$lib/trelae";
 import { eq } from "drizzle-orm";
 
 const seatsByPlan = {
-  basic: 5,
-  pro: 20,
-  enterprise: 50
+  free: 5,
+  basic: 10,
+  pro: 30,
+  enterprise: 100
 } as const;
 
 export const POST = async ({ request }) => {

@@ -159,7 +159,7 @@
     try {
       const res = await fetch('/api/plan', { method: 'DELETE' });
       if (!res.ok) throw new Error(await res.text());
-      toast.success('Plan deleted – your workspace is now free tier.');
+      toast.success('Plan deleted successfully');
       // optional: sign-out or redirect after deletion
       goto('/', { replaceState: true });
     } catch (e) {

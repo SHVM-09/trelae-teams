@@ -1,8 +1,9 @@
 // src/routes/api/team/leave/+server.ts
 import { json } from "@sveltejs/kit";
 import { db }     from "$lib/server/db";
-import { users }  from "$lib/server/db/schema";
+import { files as filesTable, users } from "$lib/server/db/schema";
 import { eq }     from "drizzle-orm";
+import { trelae } from "$lib/trelae"; // 🆕 import your Trelae SDK client
 
 export const POST = async ({ locals }) => {
   /* 1 ▸ require auth */
@@ -33,7 +34,21 @@ export const POST = async ({ locals }) => {
     );
   }
 
-  /* 4 ▸ remove the user from the team */
+  /* 4 ▸ clean up namespaces */
+  try {
+    if (user.teamNamespaceId) {
+      await trelae.namespace(user.teamNamespaceId).delete();
+    }
+
+    if (user.publicNamespaceId) {
+      await trelae.namespace(user.publicNamespaceId).delete();
+    }
+  } catch (err) {
+    console.error("Failed to delete namespaces", err);
+    return new Response("Namespace cleanup failed", { status: 500 });
+  }
+
+  /* 5 ▸ remove the user from the team */
   await db
     .update(users)
     .set({

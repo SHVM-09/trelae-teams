@@ -94,7 +94,7 @@
 	}
 
 	function openFilePreview(file: File) {
-		goto(`/dashboard/team-files/${file.id}`);
+		goto(`/dashboard/files-team/${file.id}`);
 	}
 
 	function askDelete(file: File) {
