@@ -15,8 +15,30 @@
 	let uploading = $state(false);
 	let uploadProgress = $state(0);
 
+	// Storage limits fetched once when dialog opens
+	let limits: { used: number; limit: number; usedPercent: number } | null = $state(null);
+
+	async function fetchLimits() {
+		try {
+			const res = await fetch('/api/limits');
+			if (!res.ok) throw new Error('Failed to fetch limits');
+			limits = await res.json();
+		} catch (e) {
+			console.error(e);
+			toast.error('Unable to check storage limits');
+			limits = null;
+		}
+	}
+
 	async function startUpload() {
 		if (!selectedFile) return;
+
+		// Check against limit before upload
+		if (limits && selectedFile.size + limits.used > limits.limit) {
+			toast.error("Storage limit exceeded. Please upgrade your plan.");
+			return;
+		}
+
 		uploading = true;
 		uploadProgress = 0;
 
@@ -79,10 +101,11 @@
 		dialogOpen = false;
 		selectedFile = null;
 		uploadProgress = 0;
+		limits = null;
 	}
 </script>
 
-<Button onclick={() => (dialogOpen = true)}>
+<Button onclick={() => { dialogOpen = true; fetchLimits(); }}>
 	<Plus class="size-4 mr-2" /> Upload File
 </Button>
 
@@ -115,9 +138,16 @@
 				/>
 			</label>
 
+			<!-- Show warning if selected file exceeds limit -->
+			{#if limits && selectedFile && selectedFile.size + limits.used > limits.limit}
+				<p class="mt-2 text-xs text-red-600">
+					This file will exceed your plan limit. Please upgrade to upload or delete existing files.
+				</p>
+			{/if}
+
 			<Button
 				class="mt-4 w-fit"
-				disabled={!selectedFile || uploading}
+				disabled={!selectedFile || uploading || (limits && selectedFile.size + limits.used > limits.limit)}
 				onclick={startUpload}
 			>
 				{uploading ? `${uploadProgress}% uploading...` : selectedFile ? `Upload File` : 'Choose File'}

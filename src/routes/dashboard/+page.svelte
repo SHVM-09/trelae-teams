@@ -19,7 +19,8 @@
 	} from "$lib/components/ui/avatar"
   import type { PageProps } from "./$types";
   import ConfirmDeleteDialog from './confirmDeleteDialog.svelte';
-    import {goto} from "$app/navigation";
+  import {goto} from "$app/navigation";
+  import { onMount } from "svelte";
 
   interface Member {
     id: string;
@@ -31,6 +32,9 @@
   }
 
   let { data }: PageProps = $props();
+
+  let limits = $state(data.limits);
+
   interface User {
     id?: string;
     name?: string | null;
@@ -187,18 +191,64 @@
       confirmLeaveOpen = false;
     }
   }
+
+  function formatBytes(bytes: number): string {
+    if (bytes === 0) return "0 B";
+    const units = ["B", "KB", "MB", "GB", "TB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${units[i]}`;
+  }
 </script>
 
 <div class="max-w-5xl mx-auto px-6 py-12 space-y-6 relative">
 
   <!-- ▸ page heading -->
-  <header class="space-y-2 relative">
-    <h1 class="text-2xl font-extrabold tracking-tight text-fuchsia-500 flex items-center gap-2">
-      <LayoutDashboard class="inline-block align-middle" /> Dashboard
-    </h1>
-    <p class="text-xs text-zinc-600">
-      Your central hub — get an overview of your activity, manage your personal and team files, and access all key tools from a single, streamlined space.
-    </p>
+  <header class="relative flex gap-2">
+      <div class="space-y-2">
+        <h1 class="text-2xl font-extrabold tracking-tight text-fuchsia-500 flex items-center gap-2">
+          <LayoutDashboard class="inline-block align-middle" /> Dashboard
+        </h1>
+        <p class="text-xs text-zinc-600">
+          Your central hub — get an overview of your activity, manage your personal and team files, and access all key tools from a single, streamlined space.
+        </p>
+      </div>
+      {#if limits}
+        <div class="p-5 rounded-2xl border border-zinc-200 bg-white shadow-sm min-w-xs">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-sm font-medium text-zinc-700">
+              Usage:
+            </p>
+            <span
+              class={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                limits.usedPercent < 70
+                  ? "bg-green-100 text-green-800"
+                  : limits.usedPercent < 90
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-red-100 text-red-800"
+              }`}
+            >
+              {limits.usedPercent.toFixed(0)}%
+            </span>
+          </div>
+
+          <div class="w-full h-3 bg-zinc-200 rounded-full overflow-hidden">
+            <div
+              class={`h-3 rounded-full transition-all ${
+                limits.usedPercent < 70
+                  ? "bg-gradient-to-r from-green-400 to-green-500"
+                  : limits.usedPercent < 90
+                  ? "bg-gradient-to-r from-yellow-400 to-amber-500"
+                  : "bg-gradient-to-r from-red-500 to-rose-600"
+              }`}
+              style={`width: ${limits.usedPercent}%`}
+            ></div>
+          </div>
+
+          <div class="flex justify-center text-[10px] text-zinc-600 mt-1">
+            <span>{formatBytes(limits.used)} / {formatBytes(limits.limit)}</span>
+          </div>
+        </div>
+      {/if}
   </header>
 
   <!-- Welcome -->

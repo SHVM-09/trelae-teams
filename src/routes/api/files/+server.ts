@@ -88,7 +88,7 @@ export const POST = async ({ locals, request }) => {
 		const { fileId, newLocation, name } = body;
 
 		const trelaeFile = trelae.file(fileId);
-		const originalName = await trelaeFile.getName();
+		const originalName = trelaeFile.getName();
 		let finalName = originalName ?? name;
 
 		// Conflict check must use correct userId (team or individual)

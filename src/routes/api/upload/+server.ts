@@ -1,9 +1,17 @@
 // src/routes/api/upload/+server.ts
 import { json } from "@sveltejs/kit";
 import { db } from "$lib/server/db";
-import { files } from "$lib/server/db/schema";
-import { eq, and } from "drizzle-orm";
+import { files, teams, users } from "$lib/server/db/schema";
+import { eq, sum, and, or } from "drizzle-orm";
 import { trelae } from "$lib/trelae";
+
+// limits in bytes
+const PLAN_LIMITS: Record<string, number> = {
+	free: 5 * 1024 * 1024 * 1024,          // 5 GB
+	basic: 50 * 1024 * 1024 * 1024,        // 50 GB
+	pro: 500 * 1024 * 1024 * 1024,         // 500 GB
+	enterprise: 1024 * 1024 * 1024 * 1024, // 1 TB
+};
 
 export const POST = async ({ request, locals }) => {
 	const session = await locals.auth();
@@ -32,6 +40,51 @@ export const POST = async ({ request, locals }) => {
 		namespaceId = session.user.namespaceId;
 	}
 
+	let plan = "free";
+	let used = 0;
+
+	if (session.user.teamId) {
+		// TEAM usage
+		const [team] = await db.select().from(teams).where(eq(teams.id, session.user.teamId));
+		plan = team?.plan ?? "free";
+
+		const [result] = await db
+			.select({ total: sum(files.size) })
+			.from(files)
+			.where(
+				or(
+					eq(files.namespaceId, session.user.teamNamespaceId!),
+					eq(files.namespaceId, session.user.namespaceId!),
+					eq(files.namespaceId, session.user.publicNamespaceId!)
+				)
+			);
+
+		used = Number(result?.total ?? 0);
+	} else {
+		// INDIVIDUAL usage
+		const [dbUser] = await db.select().from(users).where(eq(users.id, session.user.id!));
+
+		const [result] = await db
+			.select({ total: sum(files.size) })
+			.from(files)
+			.where(
+				or(
+					eq(files.namespaceId, dbUser.namespaceId),
+					eq(files.userId, dbUser.id)
+				)
+			);
+
+		used = Number(result?.total ?? 0);
+	}
+
+	const limit = PLAN_LIMITS[plan] ?? PLAN_LIMITS.free;
+
+	// Prevent upload if limit exceeded
+	if (used + Number(size) > limit) {
+		return new Response("Storage limit exceeded. Upgrade your plan to upload more files.", { status: 403 });
+	}
+
+	// ── STEP 3: existing duplicate filename check (unchanged) ────────────────
 	const namespace = trelae.namespace(namespaceId);
 
 	// Check for duplicate name for user
