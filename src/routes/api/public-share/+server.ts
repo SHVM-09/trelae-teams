@@ -5,6 +5,7 @@ import { users, teams } from "$lib/server/db/schema";
 import { eq }   from "drizzle-orm";
 import { env } from "$env/dynamic/private";
 import { sendEmail } from "$lib/server/email";
+import { env as publicEnv } from "$env/dynamic/public";
 
 export const POST = async ({ request, locals }) => {
 	/* ── 1. Auth & role guard ─────────────────────────────────────────── */
@@ -28,6 +29,8 @@ export const POST = async ({ request, locals }) => {
 
 	if (!team) return new Response("Team not found", { status: 404 });
 
+	const siteUrl = publicEnv.PUBLIC_SITE_URL || new URL(request.url).origin;
+
 	/* ── 4. Send email with Team-ID & public-files password ───────────── */
 	await sendEmail({
 		to: [email],
@@ -38,7 +41,7 @@ export const POST = async ({ request, locals }) => {
 			`Team ID : ${team.id}`,
 			`Password: ${team.pw ?? "(no password set)"}`,
 			"",
-			`Visit ${env.PUBLIC_SITE_URL}/public-files to unlock the files.`
+			`Visit ${siteUrl}/public-files to unlock the files.`
 		].join("\n")
 	});
 

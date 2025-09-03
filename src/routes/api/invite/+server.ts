@@ -5,6 +5,7 @@ import { randomUUID } from "crypto";
 import { env } from "$env/dynamic/private";
 import { eq, and, count } from "drizzle-orm";
 import { sendEmail } from "$lib/server/email";
+import { env as publicEnv } from "$env/dynamic/public";
 
 export const POST = async ({ request, locals }) => {
 	const session = await locals.auth();
@@ -50,6 +51,7 @@ export const POST = async ({ request, locals }) => {
 
 	//  Insert and send invite
 	const token = randomUUID();
+	const siteUrl = publicEnv.PUBLIC_SITE_URL || new URL(request.url).origin;
 	await db.insert(invites).values({
 		id: randomUUID(),
 		email,
@@ -62,7 +64,7 @@ export const POST = async ({ request, locals }) => {
 	const result = await sendEmail({
 		to: [email],
 		subject: "You're invited to Trelae Teams",
-		text: `Join: ${env.PUBLIC_SITE_URL}/dashboard/invite?token=${token}`
+		text: `Join: ${siteUrl}/dashboard/invite?token=${token}`
 	});
 
 	return json({ success: true });
