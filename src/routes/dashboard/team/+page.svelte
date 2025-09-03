@@ -102,16 +102,20 @@
   const occupiedSeats = data.occupiedSeats;
 </script>
 
-<!-- ═════════════════ MAIN PAGE ═════════════════ -->
+<svelte:head>
+  <title>Team | Teams</title>
+  <meta name="description" content="Manage your team's members, invites, and public access settings." />
+</svelte:head>
+
 <div class="max-w-5xl mx-auto py-12 space-y-12 px-8">
 
-  <header class="space-y-4 relative border-b pb-4 mb-6">
+  <header class="space-y-4 relative pb-4 mb-6">
     <!-- Title -->
     <div class="flex items-center justify-between flex-wrap gap-4">
       <h1 class="text-2xl font-bold tracking-tight text-blue-600 flex items-center gap-2">
         <Users class="inline-block size-5" /> Team
       </h1>
-      <div class="text-sm text-zinc-500 bg-zinc-100 px-3 py-1 rounded-md">
+      <div class="text-sm font-light text-zinc-500 border border-zinc-500/50 bg-zinc-100 px-3 py-1 rounded-md">
         Members: <span class="font-medium text-zinc-700">{occupiedSeats}</span> / {maxSeats}
       </div>
     </div>
@@ -177,6 +181,39 @@
     </table>
   </section>
 
+  <!-- ─── Invites ─── -->
+  <section class="rounded-lg border border-zinc-200 bg-white shadow-sm p-0 pb-4 relative">
+    <h2 class="text-xl font-semibold text-zinc-900 p-4">Pending&nbsp;Invites</h2>
+    <table class="w-full text-sm overflow-x-auto">
+      <thead class="border-b">
+        <tr>
+          <th class="px-4 py-2 text-left font-medium text-zinc-600">Email</th>
+          <th class="px-4 py-2 text-left font-medium text-zinc-600">Sent&nbsp;At</th>
+          <th class="px-4 py-2 text-right font-medium text-zinc-600">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {#if invites.length}
+          {#each invites as i}
+            <tr class="border-b last:border-b-0 hover:bg-zinc-50">
+              <td class="px-4 py-2 font-medium">{i.email}</td>
+              <td class="px-4 py-2">{i.createdAt ? new Date(i.createdAt).toLocaleDateString() : ''}</td>
+              <td class="px-4 py-2 text-right">
+                {#if user?.role==='admin'}
+                  <Button variant="ghost" size="icon" class="size-6" onclick={() => deleteInvite(i.id)}>
+                    <Trash class="size-4"/>
+                  </Button>
+                {/if}
+              </td>
+            </tr>
+          {/each}
+        {:else}
+          <tr><td colspan="3" class="py-4 text-center">No invites yet.</td></tr>
+        {/if}
+      </tbody>
+    </table>
+  </section>
+
   <!-- ─── Public Access card ─── -->
   {#if user?.role==='admin' && teamInfo}
     <section class="rounded-lg border border-zinc-200 bg-white/90 shadow-sm p-6 space-y-6 relative">
@@ -216,39 +253,6 @@
       </Button>
     </section>
   {/if}
-
-  <!-- ─── Invites ─── -->
-  <section class="rounded-lg border border-zinc-200 bg-white shadow-sm p-0 pb-4 relative">
-    <h2 class="text-xl font-semibold text-zinc-900 p-4">Pending&nbsp;Invites</h2>
-    <table class="w-full text-sm overflow-x-auto">
-      <thead class="border-b">
-        <tr>
-          <th class="px-4 py-2 text-left font-medium text-zinc-600">Email</th>
-          <th class="px-4 py-2 text-left font-medium text-zinc-600">Sent&nbsp;At</th>
-          <th class="px-4 py-2 text-right font-medium text-zinc-600">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#if invites.length}
-          {#each invites as i}
-            <tr class="border-b last:border-b-0 hover:bg-zinc-50">
-              <td class="px-4 py-2 font-medium">{i.email}</td>
-              <td class="px-4 py-2">{i.createdAt ? new Date(i.createdAt).toLocaleDateString() : ''}</td>
-              <td class="px-4 py-2 text-right">
-                {#if user?.role==='admin'}
-                  <Button variant="ghost" size="icon" class="size-6" onclick={() => deleteInvite(i.id)}>
-                    <Trash class="size-4"/>
-                  </Button>
-                {/if}
-              </td>
-            </tr>
-          {/each}
-        {:else}
-          <tr><td colspan="3" class="py-4 text-center">No invites yet.</td></tr>
-        {/if}
-      </tbody>
-    </table>
-  </section>
 </div>
 
 <!-- ─── Confirm member removal dialog ─── -->

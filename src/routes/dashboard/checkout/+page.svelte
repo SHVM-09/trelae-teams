@@ -29,15 +29,23 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Checkout - My Files</title>
+	<meta name="description" content="Checkout page for My Files" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+</svelte:head>
+
 {#if isInTeam && currentPlan}
 	<section class="min-h-[60vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 relative z-10">
 		<div class="max-w-2xl w-full text-center rounded-2xl border border-emerald-200 bg-emerald-50 p-8 shadow-sm">
-			<p class="text-2xl sm:text-3xl font-medium text-emerald-700">
+			<p class="text-2xl font-medium text-emerald-700">
 				You're currently on the
 				<strong class="capitalize">{currentPlan}</strong> plan with your team.
 			</p>
-			<p class="mt-4 text-zinc-600 text-xs sm:text-base leading-relaxed font-light">
+			<p class="mt-4 text-zinc-600 text-xs sm:text-sm leading-relaxed font-light">
 				Your team has access to all features available in this plan. If you need more members, storage, or advanced capabilities, consider upgrading from the dashboard.
+				<br />
+				The upgrade options will be available soon.
 			</p>
 		</div>
 	</section>

@@ -19,18 +19,15 @@
 	<Sidebar.Root class="w-64 min-h-screen border-r border-zinc-200 flex flex-col justify-between">
 
 		<!-- Brand -->
-		<div class="px-6 py-4 border-b border-zinc-200 flex items-center justify-between bg-white">
+		<div class="px-6 pt-4 flex items-center justify-between bg-white">
 			<a
 				href="/dashboard"
-				class="select-none text-2xl font-extrabold tracking-tight
-					bg-gradient-to-br from-pink-500 via-purple-500 to-fuchsia-500
-					bg-clip-text text-transparent"
 			>
-				Teams
+				<img src="/teams-icon.png" alt="Teams Icon" class="h-12" />
 			</a>
 
 			<span
-				class={`rounded-full capitalize inline-flex items-center text-xs font-medium px-3 py-1
+				class={`rounded-full capitalize inline-flex items-center text-[12px] font-medium px-2 py-1
 					${data.session?.user?.plan === 'pro'
 						? 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white'
 						: data.session?.user?.plan === 'enterprise'
@@ -161,7 +158,7 @@
 						class="rounded-full w-full bg-white px-4 py-1 text-sm font-medium hover:bg-zinc-50 transition-colors"
 					>
 						<span class="bg-gradient-to-br from-purple-500 via-pink-500 to-fuchsia-500 bg-clip-text text-transparent">
-							Log out
+							Sign out
 						</span>
 					</Button>
 				</div>

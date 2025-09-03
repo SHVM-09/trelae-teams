@@ -195,6 +195,11 @@
   }
 </script>
 
+<svelte:head>
+  <title>Chat | Teams</title>
+  <meta name="description" content="Team chat space for collaboration and communication." />
+</svelte:head>
+
 <!-- Confirm Clear -->
 <ConfirmDeleteDialog
   bind:open={confirmOpen}

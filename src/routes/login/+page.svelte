@@ -4,7 +4,6 @@
     import Header from "$lib/custom-components/Header.svelte";
 	import { goto } from "$app/navigation";
 	import { onMount } from "svelte";
-	import type { PageProps } from "./$types";
 
 	let { data } = $props() as { data: { session?: { user?: { name?: string; image?: string; email?: string; namespaceId?: string; teamNamespaceId?: string; publicNamespaceId?: string } } } };
 
@@ -14,6 +13,12 @@
 		}
 	});
 </script>
+
+<svelte:head>
+	<title>Login | Trelae</title>
+	<meta name="description" content="Sign in to access your Teams dashboard and manage your files securely." />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+</svelte:head>
 
 <Header session={data.session as { user?: { name?: string; image?: string; email?: string } } | null | undefined} />
 
@@ -27,10 +32,8 @@
 
 	<!-- ─── Login Hero ─── -->
 	<section class="relative z-10 flex flex-col justify-center items-center text-center pt-32 pb-16 px-4">
-		<h1 class="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-br from-pink-500 via-purple-500 to-fuchsia-500 bg-clip-text text-transparent">
-			Teams
-		</h1>
-		<p class="text-sm mt-5 leading-relaxed max-w-xl text-zinc-700">
+		<img src="/teams-icon.png" alt="Teams Icon" class="h-28" />
+		<p class="text-xs leading-relaxed max-w-xl text-zinc-700">
 			Access your files with ease. <br />
 			Sign in securely with Google to collaborate, share, and manage everything in one place.
 		</p>
@@ -38,7 +41,7 @@
 		{#if !data.session}
 			<Button
 				size="lg"
-				class="mt-8 px-8 py-4 text-sm rounded-tl-2xl rounded-br-2xl bg-black text-white shadow-md hover:brightness-110 transition-all flex justify-center items-center gap-2 cursor-pointer"
+				class="mt-16 px-8 py-4 text-sm rounded-tl-2xl rounded-br-2xl bg-black text-white shadow-md hover:brightness-110 transition-all flex justify-center items-center gap-2 cursor-pointer"
 				onclick={() => signIn("google", { callbackUrl: "/dashboard" })}
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" width="2443" height="2500" preserveAspectRatio="xMidYMid" viewBox="0 0 256 262" id="google">

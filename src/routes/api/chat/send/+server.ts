@@ -25,12 +25,12 @@ export const POST = async ({ locals, request, fetch }) => {
 
   const room   = `team-${teamId}`;
   const user   = session.user.name ?? 'Anonymous';
-  const userId = session.user.id; // 👈 send a stable id
+  const userId = session.user.id; // send a stable id
 
   const r = await fetch(`${SOCKET_SERVER_URL}/api/chat/broadcast`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ room, message, user, userId }) // 👈 include userId
+    body: JSON.stringify({ room, message, user, userId }) // include userId
   });
 
   if (!r.ok) {

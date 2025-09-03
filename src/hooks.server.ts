@@ -61,7 +61,7 @@ export const handle = SvelteKitAuth({
 			return true;
 		},
 
-		// Attach extra fields to session if you want
+		// Session callback for user data
 		async session({ session }) {
 			if (!session.user?.email) return session;
 

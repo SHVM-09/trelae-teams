@@ -322,6 +322,12 @@
 	let rotate = $state(false);
 </script>
 
+<svelte:head>
+	<title>My Files | Trelae Teams</title>
+	<meta name="description" content="Manage your personal files securely in your private space." />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+</svelte:head>
+
 <div class="max-w-5xl mx-auto py-12 space-y-12 px-8">
 
 	<!-- ▸ page heading -->
@@ -338,11 +344,11 @@
 		<div class="flex flex-wrap md:flex-nowrap items-center justify-between gap-3 mb-4 sticky top-0 bg-zinc-50 z-10 p-6">
 			<div class="flex flex-wrap items-center gap-2 min-w-0">
 				{#if currentLocation}
-					<Button size="icon" variant="ghost" onclick={navigateUp}>
+					<Button size="icon" variant="ghost" onclick={navigateUp} aria-label="Navigate up">
 						<ArrowLeft class="w-4 h-4" />
 					</Button>
 				{/if}
-				<h3 class="text-lg font-semibold text-zinc-900 flex flex-wrap items-center gap-1 truncate">
+				<h2 class="text-lg font-semibold text-zinc-900 flex flex-wrap items-center gap-1 truncate">
 					My Files
 					{#if currentLocation}
 						<span class="flex flex-wrap items-center gap-1 text-sm text-zinc-500">
@@ -352,11 +358,13 @@
 							{/each}
 						</span>
 					{/if}
-				</h3>
+				</h2>
 			</div>
 			<div class="flex flex-wrap justify-end gap-2">
+				<label for="file-search" class="sr-only">Search files</label>
 				<input
 					type="text"
+					id="file-search"
 					placeholder="Search..."
 					class="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
 					oninput={(e) => {
@@ -369,30 +377,34 @@
 					<button
 						class="p-2.5 flex items-center gap-1 text-sm font-medium
 						{!isGridView ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-700'} transition"
+						aria-label="Switch to table view"
 						onclick={() => isGridView = false}>
 						<Table class="size-3.5" />
 					</button>
 					<button
 						class="p-2.5 flex items-center gap-1 text-sm font-medium
 						{isGridView ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-700'} transition"
+						aria-label="Switch to grid view"
 						onclick={() => isGridView = true}>
 						<LayoutGrid class="size-3.5" />
 					</button>
 				</div>
 				{#if copiedFileId}
-					<Button variant="outline" onclick={pasteFile}>Paste here</Button>
+					<Button variant="outline" onclick={pasteFile} aria-label="Paste here">Paste here</Button>
 				{/if}
 				{#if moveFileId}
 					<Button
 						variant="outline"
 						onclick={confirmMoveFile}
 						disabled={myFiles.find(f => f.id === moveFileId)?.location === currentLocation}
+						aria-label="Move file here"
 						title={myFiles.find(f => f.id === moveFileId)?.location === currentLocation ? 'File is already in this location' : 'Move file here'}>
 						Move here
 					</Button>
 				{/if}
 				<Button
 					variant="outline"
+					aria-label="Refresh file list"
 					onclick={() => {
 						rotate = true;
 						loadFiles();
@@ -412,8 +424,10 @@
 						<tr>
 							<th class="px-4 py-2 text-left w-10">
 								<span class="flex items-center justify-center">
+									<label for="select-all" class="sr-only">Select All</label>
 									<input
 										type="checkbox"
+										id="select-all"
 										checked={allSelected}
 										onchange={toggleSelectAll}
 										class="size-4 rounded border-zinc-300 text-blue-600"
@@ -422,7 +436,7 @@
 							</th>
 							<th class="px-4 py-2 text-left font-medium text-zinc-600 w-52 relative">
 								{#if selectedIds.length > 0}
-									<Button size="sm" variant="secondary" class="h-6 text-xs w-32 rounded absolute top-1" onclick={askBulkDelete}>
+									<Button size="sm" variant="secondary" class="h-6 text-xs w-32 rounded absolute top-1" onclick={askBulkDelete} aria-label="Delete selected files">
 										Delete selected ({selectedIds.length})
 									</Button>
 								{:else} Name {/if}
@@ -446,8 +460,10 @@
 								>
 									<td class="px-4 py-3 w-10">
 											<span class="flex items-center justify-center">
+												<label for={`file-${file.id}`} class="sr-only">Select file {file.name}</label>
 												<input
 													type="checkbox"
+													id={`file-${file.id}`}
 													checked={selectedIds.includes(file.id)}
 													onclick={(e) => { e.stopPropagation(); toggleSelect(file.id) }}
 													class="size-4 rounded border-zinc-300 text-blue-600"
@@ -488,7 +504,7 @@
 									</td>
 									<td class="px-4 py-3 text-right flex gap-2 justify-end">
 										{#if file.type === 'file'}
-											<Button size="icon" variant="ghost" class="size-6" onclick={(e) => { e.stopPropagation(); downloadFile(file.id); }}>
+											<Button size="icon" variant="ghost" class="size-6" onclick={(e) => { e.stopPropagation(); downloadFile(file.id); }} aria-label="Download file">
 												<svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
 													<path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
 												</svg>
@@ -497,6 +513,7 @@
 												size="icon"
 												variant="ghost"
 												class="size-6"
+												aria-label="Copy file"
 												onclick={(e) => {
 													e.stopPropagation();
 													copyFile(file);
@@ -508,6 +525,7 @@
 												size="icon"
 												variant="ghost"
 												class="size-6"
+												aria-label="Move file"
 												onclick={(e) => {
 													e.stopPropagation();
 													moveFile(file);
@@ -516,7 +534,7 @@
 												<Move class="size-3.5" />
 											</Button>
 										{/if}
-										<Button size="icon" variant="ghost" class="size-6" onclick={(e) => { e.stopPropagation(); askDelete(file); }}>
+										<Button size="icon" variant="ghost" class="size-6" onclick={(e) => { e.stopPropagation(); askDelete(file); }} aria-label="Delete file">
 											<Trash class="size-3.5" />
 										</Button>
 									</td>
@@ -592,7 +610,7 @@
 				{/each}
 				{#if selectedIds.length > 0}
 					<div class="absolute -top-2 right-4 z-20">
-						<Button size="sm" class="font-light opacity-75 hover:opacity-100" variant="secondary" onclick={askBulkDelete}>
+						<Button size="sm" class="font-light opacity-75 hover:opacity-100" variant="secondary" onclick={askBulkDelete} aria-label="Delete selected files">
 							Delete Selected ({selectedIds.length})
 						</Button>
 					</div>

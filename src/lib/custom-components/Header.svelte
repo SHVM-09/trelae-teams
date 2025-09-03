@@ -3,6 +3,7 @@
 	import { signOut } from "@auth/sveltekit/client";
 	import { page } from '$app/stores';
 	import { derived } from 'svelte/store';
+	import { goto } from '$app/navigation';
 
 	let { session = null }: { session?: { user?: { name?: string; image?: string; email?: string } } | null } = $props();
 
@@ -16,9 +17,7 @@
 	<div class="mx-auto flex w-full items-center justify-between px-6 py-4 gap-6">
 		<!-- ─── Logo ─────────────────────────────── -->
 		<a href={session ? '/dashboard' : '/'} class="flex-shrink-0">
-			<h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-br from-pink-500 via-purple-500 to-fuchsia-500 bg-clip-text text-transparent">
-				Teams
-			</h1>
+			<img src="/teams-icon.png" alt="Teams Icon" class="h-16" />
 		</a>
 
 		<!-- ─── Navigation Pills ─────────────────── -->
@@ -77,8 +76,9 @@
 				<Button
 					class="rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-fuchsia-500 px-5 py-2 text-sm font-medium text-white shadow-md hover:brightness-110 focus-visible:outline-none disabled:opacity-75 disabled:cursor-not-allowed"
 					disabled={$currentPath === '/login'}
+					onclick={() => goto("/login")}
 				>
-					<a href="/login" class="flex items-center gap-1">Sign in</a>
+					Sign in
 				</Button>
 			{/if}
 		</div>

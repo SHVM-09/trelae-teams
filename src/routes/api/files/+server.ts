@@ -8,7 +8,7 @@ export const GET = async ({ locals, url }) => {
 	const session = await locals.auth();
 	if (!session?.user) return new Response("Unauthorized", { status: 401 });
 
-	// Visibility: ?visibility=team or ?visibility=public or default private
+	// Visibility: private, team, public
 	const visibility = url.searchParams.get('visibility') ?? 'private';
 
 	const dbFiles = await db
@@ -59,7 +59,7 @@ export const POST = async ({ locals, request }) => {
 
 	const namespace = trelae.namespace(namespaceId);
 
-	// DELETE
+	// Delete
 	if (body.action === 'delete') {
 		const fileId = body.fileId;
 		await trelae.file(fileId).delete();
@@ -67,7 +67,7 @@ export const POST = async ({ locals, request }) => {
 		return json({ ok: true });
 	}
 
-	// BULK DELETE
+	// Bulk Delete
 	if (body.action === 'bulk-delete') {
 		const ids: string[] = body.fileIds;
 		await trelae.files(ids).delete();
@@ -75,7 +75,7 @@ export const POST = async ({ locals, request }) => {
 		return json({ ok: true, deleted: ids });
 	}
 
-	// DOWNLOAD
+	// Download
 	if (body.action === 'download') {
 		const fileId = body.fileId;
 		// @ts-expect-error
@@ -83,7 +83,7 @@ export const POST = async ({ locals, request }) => {
 		return json({ url });
 	}
 
-	// COPY
+	// Copy
 	if (body.action === 'copy') {
 		const { fileId, newLocation, name } = body;
 
@@ -141,7 +141,7 @@ export const POST = async ({ locals, request }) => {
 		return json({ ok: true, copiedId: copied.getId() });
 	}
 
-	// MOVE
+	// Move
 	if (body.action === 'move') {
 		const { fileId, newLocation, newName } = body;
 		if (!fileId) {

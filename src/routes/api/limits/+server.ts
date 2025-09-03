@@ -26,7 +26,7 @@ export const GET = async ({ locals }) => {
   let used = 0;
 
   if (user.teamId) {
-    // ── TEAM USAGE ───────────────────────────────
+    // Team usage
     const [team] = await db.select().from(teams).where(eq(teams.id, user.teamId));
     plan = team?.plan ?? "free";
 
@@ -42,7 +42,7 @@ export const GET = async ({ locals }) => {
       );
       used = Number(result?.total ?? 0);
   } else {
-    // ── INDIVIDUAL USAGE ─────────────────────────
+    // Individual usage
     const [dbUser] = await db.select().from(users).where(eq(users.id, user.id));
 
     plan = "free"; // expand later if individuals can have paid plans

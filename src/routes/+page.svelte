@@ -8,6 +8,12 @@
 	const { session } = data.data;
 </script>
 
+<svelte:head>
+	<title>Home | Trelae</title>
+	<meta name="description" content="Teams is built for fast-moving teams who care about speed, security, and simplicity." />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+</svelte:head>
+
 <!-- Header -->
 <Header session={session ? {
 	user: {
@@ -27,8 +33,8 @@
 
 	<!-- ─── Hero ─── -->
 	<section class="relative z-10 max-w-5xl mx-auto px-6 pt-32 pb-16 text-center flex flex-col items-center">
-		<h1 class="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-br from-pink-300 via-purple-500 to-fuchsia-300 bg-clip-text text-transparent">Teams</h1>
-		<p class="text-sm mt-5 leading-relaxed max-w-xl text-zinc-700">
+		<img src="/teams-icon.png" alt="Teams Icon" class="h-28" />
+		<p class="text-xs leading-relaxed max-w-xl text-zinc-700">
 			Your Files. Perfected. <br />
 			Built for fast-moving teams who care about <span class="font-semibold text-zinc-900">speed, security</span>, and <span class="font-semibold text-zinc-900">simplicity</span>.
 		</p>
@@ -57,7 +63,7 @@
 		<div class="p-[1px] rounded-2xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 shadow-lg hover:scale-[1.02] transition-all w-full md:w-[28%]">
 			<div class="bg-white p-6 rounded-[calc(1rem-1px)] text-zinc-800 h-full">
 				<Lock class="w-6 h-6 mb-3 text-blue-500" />
-				<h3 class="text-lg font-semibold">Secure Namespaces</h3>
+				<h2 class="text-lg font-semibold">Secure Namespaces</h2>
 				<p class="mt-2 text-xs leading-relaxed text-zinc-600">
 					Keep your files safe and organized with private or public namespaces — share only what you want.
 				</p>
@@ -68,7 +74,7 @@
 		<div class="p-[1px] rounded-3xl bg-gradient-to-br from-green-500 via-teal-400 to-emerald-500 shadow-2xl hover:scale-[1.03] transition-all w-full md:w-[34%]">
 			<div class="bg-white p-8 rounded-[calc(1.5rem-1px)] text-zinc-800 h-full">
 				<Users class="w-7 h-7 mb-4 text-green-600" />
-				<h3 class="text-xl font-semibold">Team Collaboration</h3>
+				<h2 class="text-xl font-semibold">Team Collaboration</h2>
 				<p class="mt-3 text-xs leading-relaxed text-zinc-600">
 					Invite teammates, assign roles, and work together on files in real time — no more email clutter.
 				</p>
@@ -79,7 +85,7 @@
 		<div class="p-[1px] rounded-2xl bg-gradient-to-br from-pink-500 via-purple-500 to-fuchsia-500 shadow-lg hover:scale-[1.02] transition-all w-full md:w-[28%]">
 			<div class="bg-white p-6 rounded-[calc(1rem-1px)] text-zinc-800 h-full">
 				<Rocket class="w-6 h-6 mb-3 text-fuchsia-500" />
-				<h3 class="text-lg font-semibold">Large File Power</h3>
+				<h2 class="text-lg font-semibold">Large File Power</h2>
 				<p class="mt-2 text-xs leading-relaxed text-zinc-600">
 					Upload, move, copy, and serve huge files fast — no size anxiety, only smooth transfers.
 				</p>
@@ -90,7 +96,7 @@
 	<!-- ─── About Section ─── -->
 	<section class="relative z-10 py-24">
 		<div class="max-w-4xl mx-auto text-center px-6">
-			<h2 class="text-3xl md:text-4xl font-bold text-zinc-900 mb-4">Why Teams?</h2>
+			<h3 class="text-3xl md:text-4xl font-bold text-zinc-900 mb-4">Why Teams?</h3>
 			<p class="text-zinc-700 text-sm max-w-2xl mx-auto leading-relaxed">
 				Teams is designed for modern teams who handle heavy assets — videos, designs, datasets, or docs.
 				No cluttered drives. No guessing permissions. Just smooth, secure, organized file workflows.

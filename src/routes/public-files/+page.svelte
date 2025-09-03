@@ -7,21 +7,7 @@
   import ConfirmDeleteDialog from '../dashboard/confirmDeleteDialog.svelte';
   import CreateFolder from '../dashboard/createFolder.svelte';
   import UploadFile from '../dashboard/uploadFile.svelte';
-  import {
-    Trash,
-    Folder as FolderIcon,
-    File as FileIcon,
-    ArrowLeft,
-    Copy,
-    Move,
-    LayoutGrid,
-    Table,
-    MoreVertical,
-    Download,
-    RefreshCw,
-    ExternalLink,
-    Globe
-  } from 'lucide-svelte';
+  import { Trash, Folder as FolderIcon, File as FileIcon, ArrowLeft, Copy, Move, LayoutGrid, Table, MoreVertical, Download, RefreshCw, ExternalLink, Globe } from 'lucide-svelte';
 
   const { data } = $props();
   const canEdit  = data.canEdit ?? false;
@@ -239,6 +225,12 @@
   });
 </script>
 
+<svelte:head>
+  <title>Public Files</title>
+  <meta name="description" content="Browse and access public files shared by teams." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</svelte:head>
+
 <Header session={
   data.session
     ? {
@@ -322,6 +314,7 @@
         <Button
           class="w-xs py-3 h-10 text-sm rounded-lg font-medium shadow-sm hover:shadow transition"
           onclick={requestAccess}
+          aria-label="Unlock Files"
         >
           Unlock Files
         </Button>
@@ -338,12 +331,12 @@
             <!-- ▸ breadcrumb / back button -->
             <div class="flex items-center gap-2 flex-wrap min-w-0">
               {#if currentLocation}
-                <Button size="icon" variant="ghost" onclick={navigateUp}>
+                <Button size="icon" variant="ghost" onclick={navigateUp} aria-label="Go back">
                   <ArrowLeft class="size-4" />
                 </Button>
               {/if}
 
-              <h3
+              <h2
                 class="text-base sm:text-lg font-semibold text-zinc-900 flex items-center gap-1 truncate"
               >
                 Public Files
@@ -356,7 +349,7 @@
                     {/each}
                   </span>
                 {/if}
-              </h3>
+              </h2>
             </div>
 
             <!-- ▸ actions -->
@@ -366,7 +359,9 @@
             
             {#if canEdit}
                 <!-- search grows on small screens -->
+                <label for="file-search" class="sr-only">Search files</label>
                 <input
+                  id="file-search"
                   class="flex-1 min-w-[9rem] md:min-w-[12rem] lg:min-w-[15rem]
                         rounded-md border px-3 py-2 text-sm
                         focus:ring-2 focus:ring-blue-500"
@@ -396,6 +391,7 @@
                           ? 'bg-zinc-900 text-white'
                           : 'bg-zinc-100'}"
                   onclick={() => (isGridView = false)}
+                  aria-label="Switch to table view"
                 >
                   <Table class="size-3.5" />
                 </button>
@@ -405,13 +401,14 @@
                           ? 'bg-zinc-900 text-white'
                           : 'bg-zinc-100'}"
                   onclick={() => (isGridView = true)}
+                  aria-label="Switch to grid view"
                 >
                   <LayoutGrid class="size-3.5" />
                 </button>
               </div>
 
               {#if canEdit && copiedFileId}
-                <Button variant="outline" onclick={pasteFile} class="shrink-0">
+                <Button variant="outline" onclick={pasteFile} class="shrink-0" aria-label="Paste file">
                   Paste&nbsp;here
                 </Button>
               {/if}
@@ -424,6 +421,7 @@
                     publicFiles.find((f) => f.id === moveFileId)?.location ===
                     currentLocation
                   }
+                  aria-label="Move file"
                   class="shrink-0"
                 >
                   Move&nbsp;here
@@ -432,6 +430,7 @@
                   variant="outline"
                   onclick={refreshFiles}
                   class="shrink-0"
+                  aria-label="Refresh files"
                  >
                     <RefreshCw
                       class="size-4 {rotate ? 'animate-spin' : ''}"
@@ -448,12 +447,16 @@
               <thead class="border-b">
                 <tr>
                   <th class="w-10 px-4 py-2">
-                    {#if canEdit}<input type="checkbox" class="size-4" checked={allSelected} onchange={toggleSelectAll}/>{/if}
+                    {#if canEdit}
+                    <label for="select-all" class="sr-only">Select all files</label>
+                    <input id="select-all" type="checkbox" class="size-4" checked={allSelected} onchange={toggleSelectAll}/>{/if}
                   </th>
                   <th class="w-52 px-4 py-2 text-left relative font-medium">
                     {#if canEdit && selectedIds.length}
                       <Button size="sm" variant="secondary" class="absolute top-1 h-6 text-xs w-32"
-                              onclick={askBulkDelete}>Delete selected ({selectedIds.length})</Button>
+                              onclick={askBulkDelete} aria-label="Delete selected files">
+                              Delete selected ({selectedIds.length})
+                      </Button>
                     {:else} Name {/if}
                   </th>
                   <th class="px-4 py-2 text-left font-medium">Location</th>
@@ -471,7 +474,8 @@
                         onclick={()=>{if(file.type==='folder') openFolder(file)}}>
                       <td class="w-10 px-4 py-3">
                         {#if canEdit}
-                          <input type="checkbox" class="size-4" checked={selectedIds.includes(file.id)} onclick={(e)=>{e.stopPropagation();toggleSelect(file.id)}}/>
+                          <label for="file-{file.id}" class="sr-only">Select file {file.name}</label>
+                          <input id="file-{file.id}" type="checkbox" class="size-4" checked={selectedIds.includes(file.id)} onclick={(e)=>{e.stopPropagation();toggleSelect(file.id)}}/>
                         {/if}
                       </td>
                       <td class="px-4 py-3 flex items-center gap-2">
@@ -501,12 +505,12 @@
                       </td>
                       <td class="px-4 py-3 text-right flex gap-2 justify-end">
                         {#if canEdit && file.type==='file'}
-                          <Button size="icon" variant="ghost" class="size-6" onclick={(e)=>{e.stopPropagation();downloadFile(file.id);}}><Download class="size-4"/></Button>
-                          <Button size="icon" variant="ghost" class="size-6" onclick={(e)=>{e.stopPropagation();copyFile(file);}}><Copy class="size-3.5"/></Button>
-                          <Button size="icon" variant="ghost" class="size-6" onclick={(e)=>{e.stopPropagation();moveFile(file);}}><Move class="size-3.5"/></Button>
+                          <Button size="icon" variant="ghost" class="size-6" aria-label="Download file" onclick={(e)=>{e.stopPropagation();downloadFile(file.id);}}><Download class="size-4"/></Button>
+                          <Button size="icon" variant="ghost" class="size-6" aria-label="Copy file" onclick={(e)=>{e.stopPropagation();copyFile(file);}}><Copy class="size-3.5"/></Button>
+                          <Button size="icon" variant="ghost" class="size-6" aria-label="Move file" onclick={(e)=>{e.stopPropagation();moveFile(file);}}><Move class="size-3.5"/></Button>
                         {/if}
                         {#if canEdit}
-                          <Button size="icon" variant="ghost" class="size-6" onclick={(e)=>{e.stopPropagation();askDelete(file);}}><Trash class="size-3.5"/></Button>
+                          <Button size="icon" variant="ghost" class="size-6" aria-label="Delete file" onclick={(e)=>{e.stopPropagation();askDelete(file);}}><Trash class="size-3.5"/></Button>
                         {/if}
                       </td>
                     </tr>
@@ -589,7 +593,7 @@
               <!-- bulk-delete floating chip -->
               {#if canEdit && selectedIds.length}
                 <div class="absolute top-2 right-4">
-                  <Button size="sm" variant="secondary" onclick={askBulkDelete}>Delete&nbsp;Selected&nbsp;({selectedIds.length})</Button>
+                  <Button size="sm" variant="secondary" aria-label="Delete selected files" onclick={askBulkDelete}>Delete&nbsp;Selected&nbsp;({selectedIds.length})</Button>
                 </div>
               {/if}
             {:else}

@@ -34,7 +34,8 @@
 </script>
 
 <svelte:head>
-	<title>Invite Team Members | Trelae Teams</title>
+	<title>Invite Team Members | Teams</title>
+	<meta name="description" content="Send invitations to your teammates to join your team." />
 </svelte:head>
 
 <main class="relative max-w-5xl mx-auto px-6 py-14 space-y-10">
@@ -78,6 +79,7 @@
 				{/if}
 
 				<div class="flex max-w-md gap-3">
+					<label for="invite-email" class="sr-only">Email address</label>
 					<input
 						id="invite-email"
 						type="email"
@@ -88,6 +90,7 @@
 					<button
 						type="button"
 						onclick={sendInvite}
+						aria-label="Send invitation"
 						class="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-blue-600"
 					>
 						<Send class="w-4 h-4" />
@@ -97,23 +100,23 @@
 			</div>
 
 			<!-- Benefits -->
-			<dl class="grid grid-cols-1 gap-y-10 sm:grid-cols-2 lg:pt-2">
+			<div class="grid grid-cols-1 gap-y-10 sm:grid-cols-2 lg:pt-2">
 				<div class="flex flex-col items-start">
 					<div class="rounded-md bg-blue-100 p-2 ring-1 ring-blue-200">
 						<Users class="w-5 h-5 text-blue-600" />
 					</div>
-					<dt class="mt-4 text-base font-semibold text-zinc-900">Collaborate faster</dt>
-					<dd class="mt-1 text-xs text-zinc-600">Bring your team together in one place to manage everything seamlessly.</dd>
+					<p class="mt-4 text-base font-semibold text-zinc-900">Collaborate faster</p>
+					<p class="mt-1 text-xs text-zinc-600">Bring your team together in one place to manage everything seamlessly.</p>
 				</div>
 
 				<div class="flex flex-col items-start">
 					<div class="rounded-md bg-blue-100 p-2 ring-1 ring-blue-200">
 						<Clock class="w-5 h-5 text-blue-600" />
 					</div>
-					<dt class="mt-4 text-base font-semibold text-zinc-900">Instant access</dt>
-					<dd class="mt-1 text-xs text-zinc-600">Invitees receive an email and can start collaborating right away.</dd>
+					<p class="mt-4 text-base font-semibold text-zinc-900">Instant access</p>
+					<p class="mt-1 text-xs text-zinc-600">Invitees receive an email and can start collaborating right away.</p>
 				</div>
-			</dl>
+			</div>
 		</div>
 	</section>
 </main>

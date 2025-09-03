@@ -200,6 +200,12 @@
   }
 </script>
 
+<svelte:head>
+  <title>Dashboard | Trelae</title>
+  <meta name="description" content="Your central hub — get an overview of your activity, manage your personal and team files, and access all key tools from a single, streamlined space." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</svelte:head>
+
 <div class="max-w-5xl mx-auto px-6 py-12 space-y-6 relative">
 
   <!-- ▸ page heading -->
@@ -212,129 +218,130 @@
           Your central hub — get an overview of your activity, manage your personal and team files, and access all key tools from a single, streamlined space.
         </p>
       </div>
-      {#if limits}
-        <div class="p-5 rounded-2xl border border-zinc-200 bg-white shadow-sm min-w-xs">
-          <div class="flex items-center justify-between mb-3">
-            <p class="text-sm font-medium text-zinc-700">
-              Usage:
-            </p>
-            <span
-              class={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                limits.usedPercent < 70
-                  ? "bg-green-100 text-green-800"
-                  : limits.usedPercent < 90
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-red-100 text-red-800"
-              }`}
-            >
-              {limits.usedPercent.toFixed(0)}%
-            </span>
-          </div>
-
-          <div class="w-full h-3 bg-zinc-200 rounded-full overflow-hidden">
-            <div
-              class={`h-3 rounded-full transition-all ${
-                limits.usedPercent < 70
-                  ? "bg-gradient-to-r from-green-400 to-green-500"
-                  : limits.usedPercent < 90
-                  ? "bg-gradient-to-r from-yellow-400 to-amber-500"
-                  : "bg-gradient-to-r from-red-500 to-rose-600"
-              }`}
-              style={`width: ${limits.usedPercent}%`}
-            ></div>
-          </div>
-
-          <div class="flex justify-center text-[10px] text-zinc-600 mt-1">
-            <span>{formatBytes(limits.used)} / {formatBytes(limits.limit)}</span>
-          </div>
-        </div>
-      {/if}
   </header>
 
   <!-- Welcome -->
-  <section
-    class="rounded-2xl border border-zinc-200 bg-gradient-to-br from-white to-zinc-50 p-6 sm:p-8 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6"
-  >
-    <!-- avatar & user info -->
-    <div class="flex items-center gap-5">
-      <Avatar class="size-20 sm:size-24 md:size-28 rounded-full ring-1 ring-zinc-200 shadow-sm shrink-0">
-        <AvatarImage
-          src={user?.image ?? "https://placehold.co/600x400"}
-          alt={user?.name ?? "User"}
-          class="object-cover"
-        />
-        <AvatarFallback class="text-2xl sm:text-3xl">{user?.name?.[0] ?? "U"}</AvatarFallback>
-      </Avatar>
+  <div class="flex items-center gap-4">
+    <section
+      class="rounded-2xl border border-zinc-200 bg-gradient-to-br from-white to-zinc-50 p-6 sm:p-8 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6 flex-1"
+    >
+      <!-- avatar & user info -->
+      <div class="flex items-center gap-5">
+        <Avatar class="size-20 sm:size-24 md:size-28 rounded-full ring-1 ring-zinc-200 shadow-sm shrink-0">
+          <AvatarImage
+            src={user?.image ?? "https://placehold.co/600x400"}
+            alt={user?.name ?? "User"}
+            class="object-cover"
+          />
+          <AvatarFallback class="text-2xl sm:text-3xl">{user?.name?.[0] ?? "U"}</AvatarFallback>
+        </Avatar>
 
-      <div>
-        <h1 class="text-xl sm:text-2xl font-medium tracking-tight text-zinc-900">
-          {user?.name ?? "User"}
-        </h1>
-        <p class="text-xs text-zinc-500 truncate max-w-[220px] sm:max-w-xs">{user?.email}</p>
-        {#if user?.role}
+        <div>
+          <h1 class="text-xl sm:text-2xl font-medium tracking-tight text-zinc-900">
+            {user?.name ?? "User"}
+          </h1>
+          <p class="text-xs text-zinc-500 truncate max-w-[220px] sm:max-w-xs">{user?.email}</p>
+          {#if user?.role}
+            <span
+              class={`inline-block mt-2 rounded-full px-3 py-1 text-xs font-medium capitalize ${
+                user.role.trim() === "admin"
+                  ? "bg-blue-100 text-blue-800"
+                  : "bg-green-100 text-green-800"
+              }`}
+            >
+              {user.role.trim()}
+            </span>
+          {/if}
           <span
-            class={`inline-block mt-2 rounded-full px-3 py-1 text-xs font-medium capitalize ${
-              user.role.trim() === "admin"
-                ? "bg-blue-100 text-blue-800"
-                : "bg-green-100 text-green-800"
+            class={`rounded-full capitalize inline-flex items-center text-xs font-medium px-3 py-1
+              ${data.session?.user?.plan === 'pro'
+                ? 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white'
+                : data.session?.user?.plan === 'enterprise'
+                ? 'bg-gradient-to-br from-yellow-400 to-amber-500 text-white'
+                : data.session?.user?.plan === 'basic'
+                ? 'bg-gradient-to-br from-green-400 to-emerald-500 text-white'
+                : 'bg-gradient-to-br from-zinc-200 to-zinc-300 text-zinc-700'}
+            `}
+          >
+            {data.session?.user?.plan || 'free'}
+          </span>
+        </div>
+      </div>
+
+      <!-- sign out -->
+      <div class="flex flex-col gap-4">
+        <div class="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-fuchsia-500 p-[1px]" >
+          <button
+            onclick={() => signOut()}
+            class="rounded-full w-full bg-white text-sm font-medium px-4 py-2 hover:bg-zinc-50 transition-colors"
+          >
+            <span class="bg-gradient-to-br from-purple-500 via-pink-500 to-fuchsia-500 bg-clip-text text-transparent">
+              Sign out
+            </span>
+          </button>
+        </div>
+
+        {#if user?.teamId}
+          {#if user?.role === 'admin'}
+            <!-- Delete Team (admin) -->
+            <div class="inline-flex items-center justify-center rounded-full bg-gradient-to-br from-red-500 via-rose-500 to-orange-500 p-[1px]">
+              <button
+                class="rounded-full w-full bg-white text-sm font-medium px-4 py-2 hover:bg-zinc-50 transition-colors text-red-600"
+                onclick={() => confirmPlanOpen = true}>
+                Delete Team
+              </button>
+            </div>
+          {:else}
+            <!-- Leave Team (member) ─── NEW -->
+            <div class="inline-flex items-center justify-center rounded-full bg-gradient-to-br from-red-500 via-rose-500 to-orange-500 p-[1px]">
+              <button
+                class="rounded-full w-full bg-white text-sm font-medium px-4 py-2 hover:bg-zinc-50 transition-colors text-red-600"
+                onclick={() => confirmLeaveOpen = true}>
+                Leave Team
+              </button>
+            </div>
+          {/if}
+        {/if}
+      </div>
+    </section>
+    {#if limits}
+      <div class="p-5 rounded-2xl border border-zinc-200 bg-white shadow-sm min-w-xs h-44">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-sm font-medium text-zinc-700">
+            Usage limit
+          </p>
+          <span
+            class={`px-2.5 py-1 rounded-full text-xs font-medium ${
+              limits.usedPercent < 70
+                ? "bg-green-100 text-green-800"
+                : limits.usedPercent < 90
+                ? "bg-yellow-100 text-yellow-800"
+                : "bg-red-100 text-red-800"
             }`}
           >
-            {user.role.trim()}
+            {limits.usedPercent.toFixed(0)}%
           </span>
-        {/if}
-        <span
-          class={`rounded-full capitalize inline-flex items-center text-xs font-medium px-3 py-1
-            ${data.session?.user?.plan === 'pro'
-              ? 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white'
-              : data.session?.user?.plan === 'enterprise'
-              ? 'bg-gradient-to-br from-yellow-400 to-amber-500 text-white'
-              : data.session?.user?.plan === 'basic'
-              ? 'bg-gradient-to-br from-green-400 to-emerald-500 text-white'
-              : 'bg-gradient-to-br from-zinc-200 to-zinc-300 text-zinc-700'}
-          `}
-        >
-          {data.session?.user?.plan || 'free'}
-        </span>
+        </div>
+
+        <div class="w-full h-3 bg-zinc-200 rounded-full overflow-hidden mt-20">
+          <div
+            class={`h-3 rounded-full transition-all ${
+              limits.usedPercent < 70
+                ? "bg-gradient-to-r from-green-400 to-green-500"
+                : limits.usedPercent < 90
+                ? "bg-gradient-to-r from-yellow-400 to-amber-500"
+                : "bg-gradient-to-r from-red-500 to-rose-600"
+            }`}
+            style={`width: ${limits.usedPercent}%`}
+          ></div>
+        </div>
+
+        <div class="flex justify-center text-[10px] text-zinc-600 mt-2">
+          <span>{formatBytes(limits.used)} / {formatBytes(limits.limit)}</span>
+        </div>
       </div>
-    </div>
-
-    <!-- sign out -->
-    <div class="flex flex-col gap-4">
-      <div class="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-fuchsia-500 p-[1px]" >
-        <button
-          onclick={() => signOut()}
-          class="rounded-full w-full bg-white text-sm font-medium px-4 py-2 hover:bg-zinc-50 transition-colors"
-        >
-          <span class="bg-gradient-to-br from-purple-500 via-pink-500 to-fuchsia-500 bg-clip-text text-transparent">
-            Sign out
-          </span>
-        </button>
-      </div>
-
-      {#if user?.teamId}
-        {#if user?.role === 'admin'}
-          <!-- Delete Team (admin) -->
-          <div class="inline-flex items-center justify-center rounded-full bg-gradient-to-br from-red-500 via-rose-500 to-orange-500 p-[1px]">
-            <button
-              class="rounded-full w-full bg-white text-sm font-medium px-4 py-2 hover:bg-zinc-50 transition-colors text-red-600"
-              onclick={() => confirmPlanOpen = true}>
-              Delete Team
-            </button>
-          </div>
-        {:else}
-          <!-- Leave Team (member) ─── NEW -->
-          <div class="inline-flex items-center justify-center rounded-full bg-gradient-to-br from-red-500 via-rose-500 to-orange-500 p-[1px]">
-            <button
-              class="rounded-full w-full bg-white text-sm font-medium px-4 py-2 hover:bg-zinc-50 transition-colors text-red-600"
-              onclick={() => confirmLeaveOpen = true}>
-              Leave Team
-            </button>
-          </div>
-        {/if}
-      {/if}
-    </div>
-  </section>
-
+    {/if}
+  </div>
   <!-- Quick Actions -->
   <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     {#if user?.teamId && user?.role?.trim() !== "member"}
@@ -344,7 +351,7 @@
           <Users class="w-6 h-6 text-blue-600 group-hover:scale-110 transition-transform" />
           <span class="text-xs rounded-full bg-blue-50 text-blue-600 px-2 py-0.5">Team</span>
         </div>
-        <h3 class="text-base font-semibold text-zinc-900 mb-1">Invite Members</h3>
+        <h2 class="text-base font-semibold text-zinc-900 mb-1">Invite Members</h2>
         <p class="text-sm text-zinc-600">Send invite links and grow your workspace.</p>
       </a>
     {/if}
@@ -355,7 +362,7 @@
         <Folder class="w-6 h-6 text-green-600 group-hover:scale-110 transition-transform" />
         <span class="text-xs rounded-full bg-green-50 text-green-600 px-2 py-0.5">Private</span>
       </div>
-      <h3 class="text-base font-semibold text-zinc-900 mb-1">My Files</h3>
+      <h2 class="text-base font-semibold text-zinc-900 mb-1">My Files</h2>
       <p class="text-sm text-zinc-600">Upload, organize & manage your files securely.</p>
     </a>
 
@@ -366,7 +373,7 @@
           <Folder class="w-6 h-6 text-purple-600 group-hover:scale-110 transition-transform" />
           <span class="text-xs rounded-full bg-purple-50 text-purple-600 px-2 py-0.5">Shared</span>
         </div>
-        <h3 class="text-base font-semibold text-zinc-900 mb-1">Team Files</h3>
+        <h2 class="text-base font-semibold text-zinc-900 mb-1">Team Files</h2>
         <p class="text-sm text-zinc-600">Access & collaborate on team-level files.</p>
       </a>
 
@@ -376,7 +383,7 @@
           <Globe class="w-6 h-6 text-amber-600 group-hover:scale-110 transition-transform" />
           <span class="text-xs rounded-full bg-amber-50 text-amber-600 px-2 py-0.5">Public</span>
         </div>
-        <h3 class="text-base font-semibold text-zinc-900 mb-1">Public Files</h3>
+        <h2 class="text-base font-semibold text-zinc-900 mb-1">Public Files</h2>
         <p class="text-sm text-zinc-600">Browse files shared publicly by your team.</p>
       </a>
     {:else}
@@ -386,7 +393,7 @@
           <CreditCard class="w-6 h-6 text-yellow-600 group-hover:scale-110 transition-transform" />
           <span class="text-xs rounded-full bg-yellow-50 text-yellow-600 px-2 py-0.5">Upgrade</span>
         </div>
-        <h3 class="text-base font-semibold text-zinc-900 mb-1">Upgrade to Teams</h3>
+        <h2 class="text-base font-semibold text-zinc-900 mb-1">Upgrade to Teams</h2>
         <p class="text-sm text-zinc-600">Create teams for collaboration.</p>
       </a>
     {/if}
@@ -403,7 +410,7 @@
       </div>
 
       <div class="flex-1">
-        <h3 class="text-lg font-semibold text-zinc-900 mb-2">Upload New File</h3>
+        <h2 class="text-lg font-semibold text-zinc-900 mb-2">Upload New File</h2>
         <p class="text-sm text-zinc-600 mb-6">Click to add new files to My Files instantly.</p>
       </div>
 
@@ -448,7 +455,7 @@
       <section class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
         <div class="flex items-center gap-3 mb-4">
           <Users class="w-5 h-5 text-blue-600" />
-          <h3 class="text-lg font-semibold text-zinc-900">Members</h3>
+          <h2 class="text-lg font-semibold text-zinc-900">Members</h2>
         </div>
 
         <div class="overflow-x-auto -mx-6">
@@ -505,7 +512,7 @@
       <section class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
         <div class="flex items-center gap-3 mb-4">
           <Users class="w-5 h-5 text-blue-600" />
-          <h3 class="text-lg font-semibold text-zinc-900">Members</h3>
+          <h2 class="text-lg font-semibold text-zinc-900">Members</h2>
         </div>
 
         <div class="overflow-x-auto -mx-6">
@@ -535,7 +542,7 @@
           <section class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
             <div class="flex items-center gap-3 mb-4">
               <Users class="w-5 h-5 text-indigo-600" />
-              <h3 class="text-lg font-semibold text-zinc-900">Invites</h3>
+              <h2 class="text-lg font-semibold text-zinc-900">Invites</h2>
             </div>
 
             <div class="overflow-x-auto -mx-6">
@@ -581,7 +588,7 @@
           <section class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
             <div class="flex items-center gap-3 mb-4">
               <Users class="w-5 h-5 text-zinc-500" />
-              <h3 class="text-lg font-semibold text-zinc-900">Invites</h3>
+              <h2 class="text-lg font-semibold text-zinc-900">Invites</h2>
             </div>
 
             <p class="text-sm text-zinc-500 text-center">No pending invites</p>
@@ -591,9 +598,9 @@
         <section class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm space-y-6 h-fit">
           <div class="flex items-center gap-3">
             <ShieldCheck class="w-5 h-5 text-indigo-600" />
-            <h3 class="text-lg font-semibold text-zinc-900">
+            <h2 class="text-lg font-semibold text-zinc-900">
               Share Public-Files Access
-            </h3>
+            </h2>
           </div>
 
           <form
