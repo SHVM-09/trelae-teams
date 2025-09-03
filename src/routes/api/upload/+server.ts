@@ -1,4 +1,3 @@
-// src/routes/api/upload/+server.ts
 import { json } from "@sveltejs/kit";
 import { db } from "$lib/server/db";
 import { files, teams, users } from "$lib/server/db/schema";
@@ -13,16 +12,25 @@ const PLAN_LIMITS: Record<string, number> = {
 	enterprise: 1024 * 1024 * 1024 * 1024, // 1 TB
 };
 
+// Threshold for multipart (5 MB)
+const FIVE_MB = 5 * 1024 * 1024;
+
 export const POST = async ({ request, locals }) => {
 	const session = await locals.auth();
 	if (!session?.user) return new Response("Unauthorized", { status: 401 });
 
-	const { filename, visibility, location, type, size } = await request.json();
+	const body = await request.json();
+	const filename: string | undefined = body?.filename;
+	const visibility: "private" | "team" | "public" | undefined = body?.visibility;
+	const location: string = body?.location ?? "";
+	const dbType: string = body?.type ?? "file"; // your existing DB "type"
+	const sizeNum: number = Number(body?.size ?? 0);
+	const fileMime: string = body?.fileType || "application/octet-stream"; // NEW: MIME for multipart
+
 	if (!filename) return new Response("Filename required", { status: 400 });
 
 	// Pick namespace dynamically based on visibility
 	let namespaceId: string;
-
 	if (visibility === 'team') {
 		if (!session.user.teamNamespaceId) {
 			return new Response("Team namespace not configured for user", { status: 400 });
@@ -80,107 +88,140 @@ export const POST = async ({ request, locals }) => {
 	const limit = PLAN_LIMITS[plan] ?? PLAN_LIMITS.free;
 
 	// Prevent upload if limit exceeded
-	if (used + Number(size) > limit) {
+	if (used + Number(sizeNum) > limit) {
 		return new Response("Storage limit exceeded. Upgrade your plan to upload more files.", { status: 403 });
 	}
 
-	// ── STEP 3: existing duplicate filename check (unchanged) ────────────────
+	// ── Duplicate filename versioning (FIXED) ────────────────────────────────
+	// We version based on ANY existing file in the same namespace + location,
+	// not just the current user's files, so team/public namespaces never collide.
 	const namespace = trelae.namespace(namespaceId);
 
-	// Check for duplicate name for user
-	const existing = await db
-		.select()
+	const originalParts = filename.split(".");
+	const originalExt = originalParts.length > 1 ? originalParts.pop()! : "";
+	const originalStem = originalParts.join(".");
+
+	let suffix = 1;
+	let nameToUse = filename;
+
+	// Helper: does a file with this name already exist in this namespace+location?
+	async function nameExistsInNamespace(name: string): Promise<boolean> {
+	const rows = await db
+		.select({ id: files.id })
 		.from(files)
 		.where(
-			and(
-				eq(files.userId, session.user.id!),
-				eq(files.name, filename),
-				eq(files.location, location)
-			)
-		);
-
-	let nameToUse = filename;
-	let suffix = 1;
-
-	while (true) {
-		// Local check
-		const localExists = await db
-			.select()
-			.from(files)
-			.where(
-				and(
-					eq(files.userId, session.user.id!),
-					eq(files.name, nameToUse),
-					eq(files.location, location)
-				)
-			);
-
-		// Remote check: fetch all IDs at that location
-		const { files: remoteFiles } = await namespace.getFiles({
-			location,
-			limit: 50 // adjust if needed
-		});
-
-		// Check each remote file’s metadata.name
-		let remoteConflict = false;
-		for (const remoteFile of remoteFiles) {
-			const name = remoteFile.getName();
-			if (name === nameToUse) {
-				remoteConflict = true;
-				break;
-			}
-		}
-
-		if (!localExists.length && !remoteConflict) break;
-
-		// Bump version
-		const parts = filename.split(".");
-		if (parts.length > 1) {
-			const ext = parts.pop();
-			nameToUse = `${parts.join(".")}_v${++suffix}.${ext}`;
-		} else {
-			nameToUse = `${filename}_v${++suffix}`;
-		}
+		and(
+			eq(files.namespaceId, namespaceId),
+			eq(files.location, location),
+			eq(files.name, name)
+		)
+		)
+		.limit(1);
+	return rows.length > 0;
 	}
 
-	const { id, uploadUrl } = await namespace.getUploadUrl({
+	// Loop until a unique name is found
+	// (We rely on DB truth; remote listing is not needed and could miss >50 files.)
+	while (await nameExistsInNamespace(nameToUse)) {
+	if (originalExt) {
+		nameToUse = `${originalStem}_v${++suffix}.${originalExt}`;
+	} else {
+		nameToUse = `${originalStem}_v${++suffix}`;
+	}
+	}
+
+	// === Choose single vs multipart based on size ============================
+	if (Number.isFinite(sizeNum) && sizeNum > 0 && sizeNum < FIVE_MB) {
+		// Single PUT upload (existing behavior)
+		const { id, uploadUrl } = await namespace.getUploadUrl({
+			name: nameToUse,
+			location,
+			expiry: '1h',
+		});
+
+		await db.insert(files).values({
+			id,
+			userId: session.user.id!,
+			name: nameToUse,
+			location,
+			type: dbType,
+			size: Number(sizeNum) || 0,
+			namespaceId: namespaceId,
+			status: 'pending',
+			visibility: visibility || "private",
+		});
+
+		return json({ uploadUrl, fileId: id, name: nameToUse });
+	}
+
+	// Multipart
+	const start = await namespace.startMultipartUpload({
 		name: nameToUse,
 		location,
-		expiry: '1h',
+		size: Number(sizeNum),
+		fileType: fileMime
 	});
+	// start: { id, uploadId, partSize, partCount, urls: [{partNumber,url}] }
 
 	await db.insert(files).values({
-		id,
+		id: start.id,
 		userId: session.user.id!,
 		name: nameToUse,
 		location,
-		type: type || 'file',
-		size: Number(size) || 0,
+		type: dbType,
+		size: Number(sizeNum) || 0,
 		namespaceId: namespaceId,
 		status: 'pending',
 		visibility: visibility || "private",
 	});
 
-	return json({ uploadUrl, fileId: id, name: nameToUse });
+	return json({
+		fileId: start.id,
+		uploadId: start.uploadId,
+		partSize: start.partSize,
+		partCount: start.partCount,
+		urls: start.urls,
+		name: nameToUse
+	});
 };
 
-// src/routes/api/upload/+server.ts (append this below POST)
 export const PUT = async ({ request, locals }) => {
 	const session = await locals.auth();
 	if (!session?.user) return new Response("Unauthorized", { status: 401 });
 
-	const { fileId } = await request.json();
+	const { fileId, uploadId, parts } = await request.json();
+
 	if (!fileId) return new Response("Missing fileId", { status: 400 });
 
+	// Fetch file to assert ownership and get namespaceId
+	const [record] = await db
+		.select()
+		.from(files)
+		.where(and(eq(files.id, fileId), eq(files.userId, session.user.id!)));
+
+	if (!record) return new Response("File not found", { status: 404 });
+
+	// If multipart details present, complete multipart first
+	if (uploadId && Array.isArray(parts) && parts.length > 0) {
+		try {
+			await trelae
+				.namespace(record.namespaceId)
+				.completeMultipartUpload({
+					fileId,
+					uploadId,
+					parts // [{ partNumber, etag }]
+				});
+		} catch (err) {
+			console.error('Multipart completion failed:', err);
+			return new Response("Multipart completion failed", { status: 500 });
+		}
+	}
+
+	// Mark uploaded (works for both single and multipart)
 	await db
 		.update(files)
 		.set({ status: "uploaded" })
-		.where(
-			and(
-				eq(files.id, fileId),
-				eq(files.userId, session.user.id!)
-			)
-		);
+		.where(and(eq(files.id, fileId), eq(files.userId, session.user.id!)));
 
 	return json({ success: true });
 };
