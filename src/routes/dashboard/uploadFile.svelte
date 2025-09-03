@@ -24,8 +24,6 @@
 			if (!res.ok) throw new Error('Failed to fetch limits');
 			limits = await res.json();
 		} catch (e) {
-			console.error(e);
-			toast.error('Unable to check storage limits');
 			limits = null;
 		}
 	}

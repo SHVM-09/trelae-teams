@@ -16,7 +16,8 @@ export const GET = async ({ locals, url }) => {
 		.from(filesTable)
 		.where(
 			and(
-				eq(filesTable.visibility, visibility)
+				eq(filesTable.visibility, visibility),
+				eq(filesTable.userId, session.user.id!)
 			)
 		);
 
